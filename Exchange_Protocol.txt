@@ -1,0 +1,25 @@
+
+  ########################
+  ### Driving Language ###
+  ########################
+
+The driving language is the protocol of datas sent by network from the driving WS to the targeted device (Arduino). The language is a sequence of commands that the Arduino will execute on the PlayStation remote control. The sequence of commands is, at an http level, a sequence of characters, which meaning are the followings:
+
+. '{' = Starts a sequence sending so that every characters following are considered as interpreted as driving language characters by the Arduino device.
+
+. 'U' = "Up" -> to push the "Up" button of the PS  remote control.
+
+. 'D' = "Down" -> to push the "Down" button of the PS  remote control.
+
+. 'L' = "Left" -> to push the "Left" button of the PS  remote control.
+
+. 'R' = "Right" -> to push the "Right" button of the PS  remote control.
+
+. 'X' = to push the "X" button of the PS remote control. This button semantic is to do a selection.
+
+. 'O' = to push the "O" button of the PS remote control. This button semantic is to cancel a selection of just go back.
+
+. '-' = the separator between each "button push" command.
+
+. '}' = Close the command sequence. After this character, the Arduino device is supposed to stop reading the next bytes of the http connection (it can be closed).
+
