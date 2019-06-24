@@ -1,6 +1,8 @@
 # VideoAlarmClock-WS
 This repository is the server part of a bigger project which goal is to make a totally customizable video alarm clock, for people who feel the wake up moment as difficult, like me. The big project is composed of two parts: The device controling both a TV and a PlayStation (4) remote control, and this WS that is reached by the device to get the informations about the alarm time and the control sequence to execute on the remote controls.
 
+_**If you want to use an alternative system than the Playstation 4 and you are motivated to contribute to make this possible**, please **create an issue** and I will invest my efforts to adapt the code to drive different kind of devices._
+
 # Web Service part #
 
 There are 3 methods endpoints that are used to provide informations to the Arduino device or to update an info.
