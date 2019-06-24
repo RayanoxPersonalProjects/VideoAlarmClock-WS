@@ -1,0 +1,7 @@
+{"properties": [
+  {
+    "name": "token_server_side",
+    "type": "java.lang.String",
+    "description": "A description for 'token_server_side'"
+  }
+]}
