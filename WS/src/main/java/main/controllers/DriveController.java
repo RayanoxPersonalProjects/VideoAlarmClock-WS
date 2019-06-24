@@ -1,5 +1,6 @@
 package main.controllers;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -17,6 +18,7 @@ import main.authentication.ServerTokenProvider;
 import main.clients.IYoutubeClient;
 import main.model.ContentType;
 import main.model.ErrorBuilder;
+import main.providers.DataStorage;
 import main.providers.IDataProvider;
 import main.providers.InfoChannel;
 import main.utils.Converter;
@@ -24,11 +26,16 @@ import main.utils.Converter;
 @RestController
 public class DriveController {
 
+	private final String CONF_ALARM_CLOCK_PROPERTY_NAME = "alarmClockTime";
+	
 	@Autowired
 	ServerTokenProvider serverTokenProvider;
 	
 	@Autowired
 	IDataProvider dataProvider;
+
+	@Autowired
+	private DataStorage dataStorage;
 
     @RequestMapping(value = "/getCommands", method = RequestMethod.GET)
     public String GetCommands(@RequestParam(value = "token") String token, @RequestParam(value = "contentType") char contentTypeCode) throws AuthenticationException {
@@ -69,14 +76,11 @@ public class DriveController {
     		return failedAuthMessage;
     	
     	try {
-    		//allTasksOfFutureDays = googleTaskClient.GetAllRegularTasksOfFutureDays();
+    		Time alarmTime = (Time) this.dataStorage.getData(CONF_ALARM_CLOCK_PROPERTY_NAME, Time.class);
+    		return Converter.convertTimeToString(alarmTime);
     	}catch(Exception e) {
     		return ErrorBuilder.buildError(formatStringException(e));
     	}
-    	
-    	
-    	return "default response of getTimeAlarm method (not implemented yet)";
-        //return new AllTasksResults(allTasksOfFutureDays);
     }
     
     

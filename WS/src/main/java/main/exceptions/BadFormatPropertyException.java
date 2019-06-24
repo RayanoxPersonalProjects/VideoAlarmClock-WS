@@ -10,4 +10,8 @@ public class BadFormatPropertyException extends Exception {
 	public BadFormatPropertyException(String message) {
 		super(message);
 	}
+	
+	public BadFormatPropertyException(Exception exception) {
+		super(exception);
+	}
 }
