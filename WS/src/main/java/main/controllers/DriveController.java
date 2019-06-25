@@ -1,8 +1,12 @@
 package main.controllers;
 
+import java.lang.reflect.Method;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +56,8 @@ public class DriveController {
     		String commands = "";
     		switch(contentType) {
     			case INFO_CHANNEL :
-				int dayOfYear = currentDate.get(Calendar.DAY_OF_YEAR);
-				InfoChannel channelSelected = dayOfYear  % 2 == 0 ? InfoChannel.France24 : InfoChannel.euronews_playlist;
+					int dayOfYear = currentDate.get(Calendar.DAY_OF_YEAR);
+					InfoChannel channelSelected = dayOfYear  % 2 == 0 ? InfoChannel.France24 : InfoChannel.euronews_playlist;
     				commands = dataProvider.GetContentCommand_InfoChannel(channelSelected);
     				result += String.format("[channelSelected = %s , DAY_O_Y = %s, command length = %d] - ", channelSelected.toString(), dayOfYear, ((commands.length()+1)/2) - 2);
     				break;
@@ -101,7 +105,48 @@ public class DriveController {
     	return "default response of setTimeAlarm method (not implemented yet)";
     }
     
-    
+    @GetMapping(value = "/help", produces = {"application/json"})
+    public String GetMethodsList(@RequestParam(value = "token") String token, HttpServletResponse response) {
+    	
+    	ArrayList<String> wsMethods = new ArrayList<>();
+    	
+    	Method [] methodsOfControllerClass = DriveController.class.getDeclaredMethods();
+    	for (Method method : methodsOfControllerClass) {
+    		GetMapping getAnnotation = method.getAnnotation(GetMapping.class);
+    		PostMapping postAnnotation = method.getAnnotation(PostMapping.class);
+    		RequestMapping requestMappingAnnotation = method.getAnnotation(RequestMapping.class);
+    		
+    		
+    		String paramInfos = "";
+    		for (Class<?> classParameters : method.getParameterTypes()) {
+    			if(paramInfos.isEmpty())
+    				paramInfos = classParameters.getSimpleName();
+    			else
+    				String.join(", ", paramInfos, classParameters.getSimpleName());
+			}
+    		
+    		String methodDetails = null;    		
+    		if(getAnnotation != null) {
+    			methodDetails = String.format("\"[GET] - %s    -   (paramsTypes: %s)\"", getAnnotation.value()[0], paramInfos);
+    		}else if(postAnnotation != null) {
+    			methodDetails = String.format("\"[POST] - %s    -   (paramsTypes: %s)\"", postAnnotation.value()[0], paramInfos);
+    		}else if(requestMappingAnnotation != null) {
+    			String methodTypeName = requestMappingAnnotation.method()[0].name();
+    			methodDetails = String.format("\"[%s] - %s    -   (paramsTypes: %s)\"", methodTypeName, requestMappingAnnotation.value()[0], paramInfos);
+    		}
+    		
+    		if(methodDetails != null)
+    			wsMethods.add(methodDetails);
+		}
+    			
+    	for(int i = 0; i < wsMethods.size(); i++) {
+    		wsMethods.set(i, "\"WS_Method n° "+i+"\": " + wsMethods.get(i));
+    	}
+    	
+//    	response.setContentType(org.apache.http.entity.ContentType.APPLICATION_JSON.toString());
+    	
+    	return "{" + String.join(",", wsMethods) + "}";
+    }
     
     
     
