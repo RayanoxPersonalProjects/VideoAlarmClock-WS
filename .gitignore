@@ -3,3 +3,4 @@
 **/.settings/**
 target
 **/tokens/**
+**/config/StoredData.conf

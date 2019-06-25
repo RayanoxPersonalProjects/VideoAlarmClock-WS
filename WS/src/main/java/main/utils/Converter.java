@@ -22,8 +22,8 @@ public class Converter {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static Time convertStringToCalendar(String dateString) throws Exception {
-		String errorMessage = "The string date does not have the correct synthax (hh:mm:ss)";
+	public static Time convertStringToTime(String dateString) throws Exception {
+		String errorMessage = "The string date does not have the correct synthax (hh:mm:ss) --> (dateString = " + dateString + ")";
 		try {
 			Time time = Time.valueOf(dateString); // TODO Tester qu'une exception se throw bien si le format est mauvais, ou l'heure incorrecte.
 			return time;
@@ -34,6 +34,15 @@ public class Converter {
 	
 	@SuppressWarnings("deprecation")
 	public static String convertTimeToString(Time time) {
-		return String.format("%:%d:%d", time.getHours(),time.getMinutes(), time.getSeconds());
+		return String.format("%d:%d:%d", time.getHours(),time.getMinutes(), time.getSeconds());
+	}
+	
+	public static int convertStringToVolum(String param) throws Exception {
+		int volum = Integer.parseInt(param);
+		if(volum > 100)
+			throw new Exception(String.format("The volum level cannot be greater than 100 (value = %s)", volum));
+		if(volum < 0)
+			throw new Exception(String.format("The volum level cannot be less than 0 (value = %s)", volum));
+		return volum;
 	}
 }

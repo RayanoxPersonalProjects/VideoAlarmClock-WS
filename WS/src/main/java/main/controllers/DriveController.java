@@ -1,11 +1,11 @@
 package main.controllers;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.tomcat.websocket.AuthenticationException;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import main.authentication.ServerTokenProvider;
-import main.clients.IYoutubeClient;
 import main.model.ContentType;
 import main.model.ErrorBuilder;
 import main.providers.DataStorage;
@@ -30,7 +29,12 @@ import main.utils.Converter;
 @RestController
 public class DriveController {
 
+	private static final String CONF_VOLUM_PROPERTY_NAME = "volumLevel";
+	private final Integer DEFAULT_VOLUM = 30;
+	
 	private final String CONF_ALARM_CLOCK_PROPERTY_NAME = "alarmClockTime";
+	private final Time DEFAULT_ALARM_TIME = new Time(7, 30, 0);
+	
 	
 	@Autowired
 	ServerTokenProvider serverTokenProvider;
@@ -81,6 +85,11 @@ public class DriveController {
     	
     	try {
     		Time alarmTime = (Time) this.dataStorage.getData(CONF_ALARM_CLOCK_PROPERTY_NAME, Time.class);
+    		if(alarmTime == null) {
+    			this.dataStorage.setData(CONF_ALARM_CLOCK_PROPERTY_NAME, DEFAULT_ALARM_TIME);
+    			alarmTime = (Time) this.dataStorage.getData(CONF_ALARM_CLOCK_PROPERTY_NAME, Time.class);
+    		}
+    		
     		return Converter.convertTimeToString(alarmTime);
     	}catch(Exception e) {
     		return ErrorBuilder.buildError(formatStringException(e));
@@ -88,22 +97,58 @@ public class DriveController {
     }
     
     
-    @PostMapping(value = "/setTimeAlarm")
-    public String SetTimeAlarm(@RequestBody String date, @RequestParam(value = "token") String token) throws AuthenticationException {
+    @GetMapping(value = "/setTimeAlarm")
+    public String SetTimeAlarm(@RequestParam String date, @RequestParam(value = "token") String token) throws AuthenticationException {
     	String failedAuthMessage = processAuthorization(token);
     	if(failedAuthMessage != null)
     		return failedAuthMessage;
-    	   
-//    	if(task == null || task.getId() == null || task.getName() == null || task.isCompleted() == null) {
-//    		return getFailedOperationResult("At least one input argument is null. Retry without null arguments. Task content = \n" + task != null ? task.toString() : "null");
-//    	}
     	
-		//OperationResult resultOp = googleTaskClient.UpdateTask(task);
-    	//String resultOp = dataProvider.UpdateTask(task);
-    	
-    	//return resultOp;
-    	return "default response of setTimeAlarm method (not implemented yet)";
+    	try {
+    		Time time = Converter.convertStringToTime(date);
+    		this.dataStorage.setData(CONF_ALARM_CLOCK_PROPERTY_NAME, time);
+    		
+    		return "Success";
+    	}catch(Exception e) {
+    		return ErrorBuilder.buildError(formatStringException(e));
+    	}
     }
+
+    @GetMapping(value = "/getVolum")
+    public String GetVolum(@RequestParam(value = "token") String token) throws AuthenticationException {
+    	String failedAuthMessage = processAuthorization(token);
+    	if(failedAuthMessage != null)
+    		return failedAuthMessage;
+    	
+    	try {
+    		Integer volum = (Integer) this.dataStorage.getData(CONF_VOLUM_PROPERTY_NAME, Integer.class);
+    		if(volum == null) {
+    			this.dataStorage.setData(CONF_VOLUM_PROPERTY_NAME, DEFAULT_VOLUM);
+    			volum = (Integer) this.dataStorage.getData(CONF_VOLUM_PROPERTY_NAME, Integer.class);
+    		}
+    		
+    		return volum.toString();
+    	}catch(Exception e) {
+    		return ErrorBuilder.buildError(formatStringException(e));
+    	}
+    }
+    
+    
+    @GetMapping(value = "/setVolum")
+    public String SetVolum(@RequestParam String levelVolum, @RequestParam(value = "token") String token) throws AuthenticationException {
+    	String failedAuthMessage = processAuthorization(token);
+    	if(failedAuthMessage != null)
+    		return failedAuthMessage;
+    	
+    	try {
+    		int volum = Converter.convertStringToVolum(levelVolum);
+    		this.dataStorage.setData(CONF_VOLUM_PROPERTY_NAME, volum);
+    		
+    		return "Success";
+    	}catch(Exception e) {
+    		return ErrorBuilder.buildError(formatStringException(e));
+    	}
+    }
+    
     
     @GetMapping(value = "/help", produces = {"application/json"})
     public String GetMethodsList(@RequestParam(value = "token") String token, HttpServletResponse response) {
@@ -143,8 +188,6 @@ public class DriveController {
     		wsMethods.set(i, "\"WS_Method n° "+i+"\": " + wsMethods.get(i));
     	}
     	
-//    	response.setContentType(org.apache.http.entity.ContentType.APPLICATION_JSON.toString());
-    	
     	return "{" + String.join(",", wsMethods) + "}";
     }
     
@@ -158,8 +201,14 @@ public class DriveController {
      */
     
 
-    private String formatStringException(Exception e) {
-    	return e.getMessage() + "       -----||-----     " + e.getClass().getName() + " ----- " + Converter.convertStacktraceToString(e.getStackTrace());
+	private String formatStringException(Exception e) {
+    	String stringStackTrace;
+    	if(e.getCause() != null)
+    		stringStackTrace = Converter.convertStacktraceToString(e.getCause().getStackTrace());
+    	else
+    		stringStackTrace = Converter.convertStacktraceToString(e.getStackTrace());
+    	
+    	return e.getMessage() + "       -----||-----     " + e.getClass().getName() + " ----- " + stringStackTrace;
     }
     
     private String processAuthorization(String token) throws AuthenticationException {
