@@ -6,6 +6,7 @@ package main.model;
  * @author rbenhmidane
  *
  */
+@Deprecated()
 public enum CharacterCommandSequence {
 	
 	//TODO (At home): To implement for each character

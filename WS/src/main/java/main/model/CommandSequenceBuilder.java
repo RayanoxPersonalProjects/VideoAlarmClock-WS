@@ -3,11 +3,15 @@ package main.model;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.google.api.client.util.Lists;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import main.exceptions.NotImplementedException;
+import main.model.youtubekeyboard.YoutubeKeyboardCommandManager;
 
 public class CommandSequenceBuilder {
+	
+	@Autowired
+	private YoutubeKeyboardCommandManager youtubeKeyboardCommandManager;
 	
 	private CommandSequence commandSequence;
 	

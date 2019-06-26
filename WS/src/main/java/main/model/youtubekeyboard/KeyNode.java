@@ -16,9 +16,28 @@ public class KeyNode {
 	 */
 	private HashMap<Character, KeyNode> mapGoToClosest;
 	
+	private final boolean isBridgeKeyNode;
+	private KeyNode nodeKeyBridgeTarget;
+	
+	
+	/**
+	 * Constructor of bridge key node
+	 */
+	public KeyNode() {
+		this.character = null;
+		this.isBridgeKeyNode = true;
+	}
+	
+	/**
+	 * Constructor of character keyNode
+	 * 
+	 * @param character
+	 */
 	public KeyNode(Character character) {
 		this.character = character;
 		this.mapGoToClosest = new HashMap<Character, KeyNode>();
+		this.isBridgeKeyNode = false;
+		this.setNodeKeyBridgeTarget(null);
 	}
 	
 	//TODO A verifier la coherence
@@ -26,6 +45,7 @@ public class KeyNode {
 		this.mapGoToClosest.put(key, value);
 	}
 	
+	//Celui qui va appeler cette methode devra surement gerer le cas de l'ajout de plusieurs NextKeyNodeCommand à la suite pour faire le lien entre les deux claviers 
 	public NextKeyNodeCommand getClosestKeyNodeToReachCharacter(Character character) throws Exception {
 		KeyNode nextKeyNode = this.mapGoToClosest.get(character);
 				
@@ -51,6 +71,31 @@ public class KeyNode {
 	
 	public Character getCharacter() {
 		return character;
+	}
+
+	public boolean isBridgeKeyNode() {
+		return isBridgeKeyNode;
+	}
+	
+	public void setNodeUp(KeyNode nodeUp) {
+		this.nodeUp = nodeUp;
+	}
+	public void setNodeDown(KeyNode nodeDown) {
+		this.nodeDown = nodeDown;
+	}
+	public void setNodeLeft(KeyNode nodeLeft) {
+		this.nodeLeft = nodeLeft;
+	}
+	public void setNodeRight(KeyNode nodeRight) {
+		this.nodeRight = nodeRight;
+	}
+
+	public KeyNode getNodeKeyBridgeTarget() {
+		return nodeKeyBridgeTarget;
+	}
+
+	public void setNodeKeyBridgeTarget(KeyNode nodeKeyBridgeTarget) {
+		this.nodeKeyBridgeTarget = nodeKeyBridgeTarget;
 	}
 	
 }
