@@ -11,6 +11,6 @@ public enum InfoChannel {
 	}
 	
 	public String getTextToType() {
-		return textToType.toLowerCase();
+		return textToType.toUpperCase();
 	}
 }

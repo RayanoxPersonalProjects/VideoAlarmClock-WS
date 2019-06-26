@@ -46,7 +46,7 @@ public class DriveController {
 	private DataStorage dataStorage;
 
     @RequestMapping(value = "/getCommands", method = RequestMethod.GET)
-    public String GetCommands(@RequestParam(value = "token") String token, @RequestParam(value = "contentType") char contentTypeCode) throws AuthenticationException {
+    public String GetCommands(@RequestParam(value = "token") String token, char contentTypeCode) throws AuthenticationException {
     	String failedAuthMessage = processAuthorization(token);
     	if(failedAuthMessage != null)
     		return failedAuthMessage;

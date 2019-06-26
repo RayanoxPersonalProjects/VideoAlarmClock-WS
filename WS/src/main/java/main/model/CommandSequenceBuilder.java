@@ -3,15 +3,12 @@ package main.model;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import main.exceptions.NotImplementedException;
-import main.model.youtubekeyboard.YoutubeKeyboardCommandManager;
+import main.model.youtubekeyboard.IYoutubeKeyboardTextCommandFactory;
+import main.model.youtubekeyboard.YoutubeKeyboardTextCommandFactory;
 
 public class CommandSequenceBuilder {
-	
-	@Autowired
-	private YoutubeKeyboardCommandManager youtubeKeyboardCommandManager;
+		
+	private IYoutubeKeyboardTextCommandFactory youtubeKeyboardCommandManager;
 	
 	private CommandSequence commandSequence;
 	
@@ -19,6 +16,7 @@ public class CommandSequenceBuilder {
 	
 	private CommandSequenceBuilder() {
 		this.commandSequence = new CommandSequence();
+		this.youtubeKeyboardCommandManager = new YoutubeKeyboardTextCommandFactory();
 	}
 	
 	public static CommandSequenceBuilder CreateCommandSequence() {
@@ -34,6 +32,11 @@ public class CommandSequenceBuilder {
 		for (PsButton psButton : commands) {
 			this.commandSequence.addBtnCommand(psButton);
 		}
+		return this;
+	}
+	
+	public CommandSequenceBuilder addClickCommand() {
+		this.commandSequence.addBtnCommand(PsButton.X);
 		return this;
 	}
 	
@@ -63,35 +66,12 @@ public class CommandSequenceBuilder {
 	 *  Predefined command sequences
 	 */
 	
-	// TODO To be improved (without using the reset position, but directly go to the correct character)
-	public CommandSequenceBuilder typeTextInYoutube(String text) throws NotImplementedException {
-		this.resetPositionOnYoutubeKeyboard();
-		for (char character : text.toCharArray()) {
-			this.getSequenceForYoutubeCharacter(character).addCommand(PsButton.O).resetPositionOnYoutubeKeyboard();
-		}
+	public CommandSequenceBuilder typeTextInYoutube(String text) throws Exception {
+		// Get the youtube commands to type the text
+		youtubeKeyboardCommandManager.addCommandsFromText(this, text, 'A');
 		
 		//Press enter
 		return this.addCommand(PsButton.Down).addCommand(PsButton.Down).addCommand(PsButton.O);
-	}
-	
-	private CommandSequenceBuilder resetPositionOnYoutubeKeyboard() {
-		return this.addCommand(PsButton.Right, 7).addCommand(PsButton.Up, 5);
-	}
-	
-	/**
-	 *  From the reset position, add the correct button sequence to get a specified character
-	 * 
-	 * @param c
-	 * @return
-	 * @throws NotImplementedException 
-	 */
-	private CommandSequenceBuilder getSequenceForYoutubeCharacter(char c) throws NotImplementedException {
-		CharacterCommandSequence charSequence = CharacterCommandSequence.getBtnSequenceOfChar(c);
-		
-		if(charSequence == null)
-			throw new NotImplementedException(String.format("The character %s has not been implemented in the youtube keyboard character-sequence converting function", c));
-		
-		return this.addAllCommands(charSequence.getBtnSequence());
 	}
 
 	public CommandSequenceBuilder browseToYoutube() {
@@ -102,5 +82,18 @@ public class CommandSequenceBuilder {
 		.addCommand(PsButton.Down).addCommand(PsButton.Down).addCommand(PsButton.Down).addCommand(PsButton.Down)
 		.addCommand(PsButton.Down).addCommand(PsButton.Down).addCommand(PsButton.Down).addCommand(PsButton.O).addCommand(PsButton.SleepOnce).addCommand(PsButton.O);
 	}
+
 	
+	/*
+	 *  Getters
+	 */
+	
+	/**
+	 *  Shouldn't be used other than in test place
+	 *  
+	 * @return
+	 */
+	public IYoutubeKeyboardTextCommandFactory getYoutubeKeyboardCommandManager() {
+		return youtubeKeyboardCommandManager;
+	}
 }

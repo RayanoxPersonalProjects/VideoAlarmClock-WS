@@ -22,7 +22,7 @@ public class CommandProvider implements IDataProvider {
 	}
 
 	@Override
-	public String GetContentCommand_InfoChannel(InfoChannel channel) throws NotImplementedException {
+	public String GetContentCommand_InfoChannel(InfoChannel channel) throws Exception {
 		CommandSequenceBuilder commandBrowserBuilder = CommandSequenceBuilder.CreateCommandSequence();
 		commandBrowserBuilder.browseToYoutube().typeTextInYoutube(channel.getTextToType()).addCommand(PsButton.O);		
 		return commandBrowserBuilder.build();
