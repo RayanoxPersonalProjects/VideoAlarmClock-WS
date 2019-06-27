@@ -66,7 +66,7 @@ public class YoutubeKeyboardTextCommandFactoryTests {
     	CommandSequenceBuilder commandBuilder = CommandSequenceBuilder.CreateCommandSequence();
     	IYoutubeKeyboardTextCommandFactory youtubeKeyboardFactory = commandBuilder.getYoutubeKeyboardCommandManager();
     	String textToTest = "Le 92i";
-    	String resultExpected = "";
+    	String resultExpected = "{D-R-R-R-R-X-U-X-D-D-D-L-L-L-L-D-X-U-U-U-R-R-R-R-R-R-R-X-L-D-L-L-L-L-X-U-U-L-X-D-R-R-R-R-R-R-X-L-L-L-L-L-L-X}";
     	
     	// Action
     	youtubeKeyboardFactory.addCommandsFromText(commandBuilder, textToTest, 'A');

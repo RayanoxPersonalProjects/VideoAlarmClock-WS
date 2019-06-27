@@ -32,6 +32,7 @@ public class KeyNode {
 	public KeyNode() {
 		this.character = null;
 		this.isBridgeKeyNode = true;
+		this.mapGoToClosest = new HashMap<Character, DistanceNode>();
 	}
 	
 	/**
@@ -47,7 +48,6 @@ public class KeyNode {
 		this.pushToGoToClosestMap(character, new DistanceNode(0));
 	}
 	
-	//TODO A verifier la coherence
 	public void pushToGoToClosestMap(Character key, DistanceNode value) {
 		this.mapGoToClosest.put(key, value);
 	}
@@ -64,10 +64,17 @@ public class KeyNode {
 			return new NextKeyNodeCommand(nextKeyNode, PsButton.Up);
 		}else if(nodeDown != null && !nodeDown.isBridgeKeyNode() && nodeDown.getCharacter().equals(nextKeyNode.getCharacter())) {
 			return new NextKeyNodeCommand(nextKeyNode, PsButton.Down);
-		}if(nodeLeft != null && !nodeLeft.isBridgeKeyNode() && nodeLeft.getCharacter().equals(nextKeyNode.getCharacter())) {
+		}else if(nodeLeft != null && !nodeLeft.isBridgeKeyNode() && nodeLeft.getCharacter().equals(nextKeyNode.getCharacter())) {
 			return new NextKeyNodeCommand(nextKeyNode, PsButton.Left);
-		}if(nodeRight != null && !nodeRight.isBridgeKeyNode() && nodeRight.getCharacter().equals(nextKeyNode.getCharacter())) {
+		}else if(nodeRight != null && !nodeRight.isBridgeKeyNode() && nodeRight.getCharacter().equals(nextKeyNode.getCharacter())) {
 			return new NextKeyNodeCommand(nextKeyNode, PsButton.Right);
+		
+		// Bridge case
+		}else if(this.isBridgeKeyNode() && nextKeyNode == nodeKeyBridgeTarget) {
+			return new NextKeyNodeCommand(nextKeyNode, PsButton.X);
+		}else if(nodeRight != null && nodeRight.isBridgeKeyNode) { // Case of the adjacent bridge node ('N' or ':'), to go to the bridge at the right side
+			return new NextKeyNodeCommand(nextKeyNode, PsButton.Right);
+			
 		}else {
 			throw new Exception("A development conception mistake is present. No adjacent node is the closest node to go detected.");
 		}

@@ -54,6 +54,8 @@ public class YoutubeKeyboardTextCommandFactory implements IYoutubeKeyboardTextCo
 		// Browse the graph to calculate all the best choice table (table that indicates which keyNode to go to for reaching the final targetted KeyNode)
 		this.calculateBestDistancesMapForAllNodesOfArray(this.firstKeyboardArray);
 		this.calculateBestDistancesMapForAllNodesOfArray(this.secondKeyboardArray);
+		
+		//Link arrays together
 		this.linkMapsOfArrayNodesToReferenceNodesArray(this.firstKeyboardArray, this.secondKeyboardArray);
 		this.linkMapsOfArrayNodesToReferenceNodesArray(this.secondKeyboardArray, this.firstKeyboardArray);
 	}
@@ -69,10 +71,10 @@ public class YoutubeKeyboardTextCommandFactory implements IYoutubeKeyboardTextCo
 		KeyNode currentNode = getKeyNodeReferenced(startPosition, this.firstKeyboardArray);
 		text = text.toUpperCase(); //There is no distinction between lower or upper case in youtube (Youtube PS Keyboard)
 		
-		KeyNode [][] currentArrayForSpaces = this.firstKeyboardArray; // Rustine
+		KeyNode [][] currentArray = this.firstKeyboardArray; // Rustine pour les espaces
 		
 		for (Character currentCharTarget : text.toCharArray()) {
-			KeyNode targetedNode = getKeyNodeReferenced(currentCharTarget, currentArrayForSpaces);
+			KeyNode targetedNode = getKeyNodeReferenced(currentCharTarget, currentArray);
 			
 			if(currentNode.getCharacter().equals(currentCharTarget)) {
 				commandBuilder.addClickCommand();
@@ -86,7 +88,7 @@ public class YoutubeKeyboardTextCommandFactory implements IYoutubeKeyboardTextCo
 				commandBuilder.addClickCommand();
 			}
 			
-			currentArrayForSpaces = isContainedNodeInArray(targetedNode, this.firstKeyboardArray) ? this.firstKeyboardArray : this.secondKeyboardArray;
+			currentArray = isContainedNodeInArray(targetedNode, this.firstKeyboardArray) ? this.firstKeyboardArray : this.secondKeyboardArray;
 		}
 		
 		return commandBuilder;
@@ -194,6 +196,9 @@ public class YoutubeKeyboardTextCommandFactory implements IYoutubeKeyboardTextCo
 		return false;
 	}
 	
+	/**
+	 *  Set a reference to every clickable node of the graph
+	 */
 	private void referenceKeyNodes() {
 		for (KeyNode[] keyNodeLine : firstKeyboardArray) {
 			for (KeyNode keyNode : keyNodeLine) {
@@ -217,7 +222,7 @@ public class YoutubeKeyboardTextCommandFactory implements IYoutubeKeyboardTextCo
 						else
 							this.referenceMapToKeyNodes.put(keyNode.getCharacter(), keyNode);
 					}else 
-						this.bridgePointerInFirstArray = keyNode;
+						this.bridgePointerInSecondArray = keyNode;
 				}
 			}
 		}
@@ -236,17 +241,59 @@ public class YoutubeKeyboardTextCommandFactory implements IYoutubeKeyboardTextCo
 	}
 	
 	private void linkMapsOfArrayNodesToReferenceNodesArray(KeyNode[][] nodeArrayToMap, KeyNode[][] nodeArrayRefered) {
+		
+		//Link the two bridges pointers	
+		this.bridgePointerInFirstArray.setNodeKeyBridgeTarget(this.bridgePointerInSecondArray);
+		this.bridgePointerInSecondArray.setNodeKeyBridgeTarget(this.bridgePointerInFirstArray);
+		
+		// Prepare linking all the nodes to the brigde adjacent node ('N' or ':')
+		KeyNode targetInCurrentArray = nodeArrayToMap == this.firstKeyboardArray ? getKeyNodeReferenced('N', nodeArrayToMap) : getKeyNodeReferenced(':', nodeArrayToMap);
+		KeyNode bridge = nodeArrayToMap == this.firstKeyboardArray ? this.bridgePointerInFirstArray : bridgePointerInSecondArray;
+		
+		// Direct link bridge with adjacent node
+		bridge.setNodeLeft(targetInCurrentArray);
+		
+		// Link all the nodes to the brigde adjacent node ('N' or ':')
 		for (KeyNode[] keyNodeReferenceLine : nodeArrayRefered) {
 			for (KeyNode keyNodeReference : keyNodeReferenceLine) {
-				for (KeyNode[] keyNodesToMapLine : nodeArrayToMap) {
-					for (KeyNode keyNodeToMap : keyNodesToMapLine) {
-						if(!keyNodeToMap.getCharacter().equals('N') && !keyNodeToMap.getCharacter().equals(':'))
-							keyNodeToMap.pushToGoToClosestMap(keyNodeReference.getCharacter(), keyNodeToMap.getMapDistanceNodeForCharacter('C'));
-						else {
+				if(keyNodeReference == null || keyNodeReference.isBridgeKeyNode())
+					continue;
+				
+				
+				if(!keyNodeReference.getCharacter().equals(' ')) {
+					for (KeyNode[] keyNodesToMapLine : nodeArrayToMap) {
+						for (KeyNode keyNodeToMap : keyNodesToMapLine) {
+							if(keyNodeToMap == null || keyNodeToMap.isBridgeKeyNode())
+								continue;
 							
+							if (!keyNodeToMap.getCharacter().equals('N') && !keyNodeToMap.getCharacter().equals(':')) {
+								Character charTarget = nodeArrayToMap == this.firstKeyboardArray ? 'N' : ':';
+								keyNodeToMap.pushToGoToClosestMap(keyNodeReference.getCharacter(), keyNodeToMap.getMapDistanceNodeForCharacter(charTarget));
+							} else {
+								// Link the bridge adjacent node ('N' or ':') with its bridge (on the right)
+								Character adjacentBridgeChar = keyNodeToMap.getCharacter();
+								KeyNode adjacentToBridgeNode = getKeyNodeReferenced(adjacentBridgeChar, nodeArrayToMap == this.firstKeyboardArray ? this.firstKeyboardArray : this.secondKeyboardArray);
+								KeyNode bridgeNode = adjacentToBridgeNode.getNodeRight();
+	
+								adjacentToBridgeNode.pushToGoToClosestMap(keyNodeReference.getCharacter(), new DistanceNode(bridgeNode));
+							}
 						}
 					}
+					
+					//Create the map of the bridge
+					bridge.pushToGoToClosestMap(keyNodeReference.getCharacter(), new DistanceNode(bridge.getNodeKeyBridgeTarget()));
 				}
+				
+			}
+		}
+		
+		//Map the bridge inside their own array
+		for (KeyNode[] keyNodeLine : nodeArrayToMap) {
+			for (KeyNode keyNodeInCurrentArray : keyNodeLine) {
+				if(keyNodeInCurrentArray == null || keyNodeInCurrentArray.isBridgeKeyNode())
+					continue;
+				
+				bridge.pushToGoToClosestMap(keyNodeInCurrentArray.getCharacter(), new DistanceNode(targetInCurrentArray));
 			}
 		}
 	}

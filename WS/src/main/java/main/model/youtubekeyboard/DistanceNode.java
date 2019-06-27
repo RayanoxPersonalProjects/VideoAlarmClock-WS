@@ -18,4 +18,8 @@ public class DistanceNode {
 		this.distance = distance;
 		this.nextKeyNodeClosestDistance = nextNode;
 	}
+
+	public DistanceNode(KeyNode nextNode) {
+		this.nextKeyNodeClosestDistance = nextNode;
+	} 
 }
