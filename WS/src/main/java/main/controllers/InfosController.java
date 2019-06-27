@@ -16,11 +16,15 @@ import main.utils.Converter;
 @RestController
 public class InfosController extends AbstractController{
 
-	private static final String CONF_VOLUM_PROPERTY_NAME = "volumLevel";
+	private final String CONF_VOLUM_PROPERTY_NAME = "volumLevel";
 	private final Integer DEFAULT_VOLUM = 30;
 	
 	private final String CONF_ALARM_CLOCK_PROPERTY_NAME = "alarmClockTime";
 	private final Time DEFAULT_ALARM_TIME = new Time(7, 30, 0);
+	
+	private final String CONF_SHUTDOWN_TIMER_VALUE_PROPERTY_NAME = "shutdownTimerValue";
+	private final Integer DEFAULT_SHUTDOWN_TIMER_VALUE = 40; // In minutes
+	
 	
 	@Autowired
 	private DataStorage dataStorage;
@@ -47,13 +51,13 @@ public class InfosController extends AbstractController{
     
     
     @GetMapping(value = "/setTimeAlarm")
-    public String SetTimeAlarm(@RequestParam String date, @RequestParam(value = "token") String token) throws AuthenticationException {
+    public String SetTimeAlarm(@RequestParam String timeParam, @RequestParam(value = "token") String token) throws AuthenticationException {
     	String failedAuthMessage = processAuthorization(token);
     	if(failedAuthMessage != null)
     		return failedAuthMessage;
     	
     	try {
-    		Time time = Converter.convertStringToTime(date);
+    		Time time = Converter.convertStringToTime(timeParam);
     		this.dataStorage.setData(CONF_ALARM_CLOCK_PROPERTY_NAME, time);
     		
     		return "Success";
@@ -97,5 +101,59 @@ public class InfosController extends AbstractController{
     		return ErrorBuilder.buildError(formatStringException(e));
     	}
     }
-	
+    
+    
+    
+    /**
+     * Timer used to know the time to close the TV and devices before sleeping (time to start after Arduino activation)
+     * 
+     * @param token
+     * @return the value of the timer in minutes
+     * @throws AuthenticationException
+     */
+    @GetMapping(value = "/getShutdownTimer")
+    public String GetShutdownTimer(@RequestParam(value = "token") String token) throws AuthenticationException {
+    	String failedAuthMessage = processAuthorization(token);
+    	if(failedAuthMessage != null)
+    		return failedAuthMessage;
+    	
+    	try {
+    		Integer minutesTimer = (Integer) this.dataStorage.getData(CONF_SHUTDOWN_TIMER_VALUE_PROPERTY_NAME, Integer.class);
+    		if(minutesTimer == null) {
+    			this.dataStorage.setData(CONF_SHUTDOWN_TIMER_VALUE_PROPERTY_NAME, DEFAULT_SHUTDOWN_TIMER_VALUE);
+    			minutesTimer = (Integer) this.dataStorage.getData(CONF_SHUTDOWN_TIMER_VALUE_PROPERTY_NAME, Integer.class);
+    		}
+    		
+    		return minutesTimer.toString();
+    	}catch(Exception e) {
+    		return ErrorBuilder.buildError(formatStringException(e));
+    	}
+    }
+    
+    
+    /**
+     * Timer used to know the time to close the TV and devices before sleeping (time to start after Arduino activation)
+     * 
+     * @param minutesTimer (Integer in minutes)
+     * @param token
+     * @return
+     * @throws AuthenticationException
+     */
+    @GetMapping(value = "/setShutdownTimer")
+    public String SetShutdownTimer(@RequestParam String minutesTimer, @RequestParam(value = "token") String token) throws AuthenticationException {
+    	String failedAuthMessage = processAuthorization(token);
+    	if(failedAuthMessage != null)
+    		return failedAuthMessage;
+    	
+    	try {
+    		Integer time = Integer.valueOf(minutesTimer);
+    		this.dataStorage.setData(CONF_SHUTDOWN_TIMER_VALUE_PROPERTY_NAME, time);
+    		
+    		return "Success";
+    	}catch(Exception e) {
+    		return ErrorBuilder.buildError(formatStringException(e));
+    	}
+    }
+    
+    
 }

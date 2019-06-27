@@ -21,7 +21,7 @@ public class HelpController extends AbstractController {
 	
 	
 	@GetMapping(value = "/help", produces = {"application/json"})
-    public String GetMethodsList(@RequestParam(value = "token") String token, HttpServletResponse response) throws AuthenticationException {
+    public String GetMethodsList(@RequestParam(value = "token") String token) throws AuthenticationException {
 		String failedAuthMessage = processAuthorization(token);
     	if(failedAuthMessage != null)
     		return failedAuthMessage;
@@ -55,7 +55,7 @@ public class HelpController extends AbstractController {
     			if(paramInfos.isEmpty())
     				paramInfos = classParameters.getSimpleName();
     			else
-    				String.join(", ", paramInfos, classParameters.getSimpleName());
+    				paramInfos = String.join(", ", paramInfos, classParameters.getSimpleName());
 			}
     		
     		String methodDetails = null;    		
