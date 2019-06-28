@@ -1,6 +1,5 @@
 package main.providers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import main.exceptions.NotImplementedException;
@@ -8,7 +7,7 @@ import main.model.CommandSequenceBuilder;
 import main.model.PsButton;
 
 @Component
-public class CommandProvider implements IDataProvider {
+public class CommandProvider implements ICommandProvider {
 
 	
 
@@ -30,8 +29,8 @@ public class CommandProvider implements IDataProvider {
 
 	@Override
 	public String GetContentCommand_CustomDailyYoutubePlaylist() throws NotImplementedException {
-		throw new NotImplementedException("Youtube custom playlist feature not implemented yet");
+		//TODO Code the access to the custom channel from Youtube on the PS4
+		throw new NotImplementedException("Youtube custom playlist feature not implemented yet (I have to code the access to the custom channel from Youtube on the PS4)");
 	}
-
 	
 }

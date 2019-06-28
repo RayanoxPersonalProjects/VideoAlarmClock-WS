@@ -3,8 +3,8 @@ package main.model;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import main.model.youtubekeyboard.IYoutubeKeyboardTextCommandFactory;
-import main.model.youtubekeyboard.YoutubeKeyboardTextCommandFactory;
+import main.model.youtube.keyboard.IYoutubeKeyboardTextCommandFactory;
+import main.model.youtube.keyboard.YoutubeKeyboardTextCommandFactory;
 
 public class CommandSequenceBuilder {
 		

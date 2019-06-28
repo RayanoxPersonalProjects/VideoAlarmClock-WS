@@ -1,5 +1,6 @@
 package main.controllers;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import main.controllers.common.AbstractController;
+import main.providers.youtube.YoutubePlaylistComposer;
 
 @RestController
 public class HelpController extends AbstractController {
@@ -37,6 +39,31 @@ public class HelpController extends AbstractController {
     	
     	return "{" + String.join(",", wsMethods) + "}";
     }
+	
+	@GetMapping(value = "/helpFormulasListInfos", produces = {"application/json"})
+    public String GetFormulaList(@RequestParam(value = "token") String token) throws Exception {
+		String failedAuthMessage = processAuthorization(token);
+    	if(failedAuthMessage != null)
+    		return failedAuthMessage;
+
+    	ArrayList<String> formulaInfos = new ArrayList<String>();
+    	
+    	Class<?> ter = YoutubePlaylistComposer.class;
+    	Field [] fields = ter.getFields();
+    	
+    	for (Field field : fields) {
+			String variableName = field.getName();
+			
+			if(variableName.startsWith("FORMULA_" )) {
+				int variableValue = field.getInt(field);
+				formulaInfos.add(String.format("\"Formula with ID = %d\": \"%s\"", variableValue, variableName));
+			}
+		}
+    	
+    	return "{" + String.join(",", formulaInfos) + "}";
+    }
+	
+	
 	
 	
 	

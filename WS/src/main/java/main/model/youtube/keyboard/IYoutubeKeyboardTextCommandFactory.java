@@ -1,4 +1,4 @@
-package main.model.youtubekeyboard;
+package main.model.youtube.keyboard;
 
 import main.model.CommandSequenceBuilder;
 

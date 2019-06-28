@@ -1,4 +1,4 @@
-package main.model.youtubekeyboard;
+package main.model.youtube.keyboard;
 
 /**
  * This object is used to store the distance information to aim a character node 

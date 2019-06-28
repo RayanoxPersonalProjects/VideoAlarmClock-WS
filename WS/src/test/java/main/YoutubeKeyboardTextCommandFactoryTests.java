@@ -32,8 +32,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import main.model.CommandSequence;
 import main.model.CommandSequenceBuilder;
-import main.model.youtubekeyboard.IYoutubeKeyboardTextCommandFactory;
-import main.model.youtubekeyboard.YoutubeKeyboardTextCommandFactory;
+import main.model.youtube.keyboard.IYoutubeKeyboardTextCommandFactory;
+import main.model.youtube.keyboard.YoutubeKeyboardTextCommandFactory;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
