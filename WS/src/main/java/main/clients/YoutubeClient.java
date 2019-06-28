@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,11 +22,25 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.client.util.store.FileDataStoreFactory;
-import com.google.api.services.tasks.Tasks;
-import com.google.api.services.tasks.TasksScopes;
+import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.YouTube.Channels;
+import com.google.api.services.youtube.YouTube.Playlists.Delete;
+import com.google.api.services.youtube.YouTube.Search;
+import com.google.api.services.youtube.YouTubeScopes;
+import com.google.api.services.youtube.model.Channel;
+import com.google.api.services.youtube.model.ChannelListResponse;
+import com.google.api.services.youtube.model.Playlist;
+import com.google.api.services.youtube.model.PlaylistItem;
+import com.google.api.services.youtube.model.PlaylistItemSnippet;
+import com.google.api.services.youtube.model.PlaylistSnippet;
+import com.google.api.services.youtube.model.ResourceId;
 
+import main.clients.requestparams.VideoDuration;
 import main.exceptions.BadFormatPropertyException;
+import main.exceptions.NotImplementedException;
+import main.model.youtube.playlist.VideoItem;
 
 @Service
 public class YoutubeClient implements IYoutubeClient {
@@ -33,20 +48,143 @@ public class YoutubeClient implements IYoutubeClient {
 	private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
 
 	private static final String APPLICATION_NAME = "RegularTasks-mediation";
-	private static final List<String> SCOPES = Collections.singletonList(TasksScopes.TASKS);
+//	private static final List<String> SCOPES = Collections.singletonList(TasksScopes.TASKS);
+	private static final List<String> SCOPES = Collections.singletonList(YouTubeScopes.YOUTUBE_UPLOAD);
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 	private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
-	private Tasks taskService;
+	private static final Long DEFAULT_VIDEO_RESEARCH_LIMIT_RESULT = Long.valueOf(30);
+	private static final Long DEFAULT_PLAYLIST_LIMIT_RESULT = Long.valueOf(5);
+
+	private YouTube youtubeService;
+	
 
 	public YoutubeClient() throws GeneralSecurityException, IOException {
 
-//		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-//		taskService = new Tasks.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-//				.setApplicationName(APPLICATION_NAME).build();
+		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+		youtubeService = new YouTube.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+				.setApplicationName(APPLICATION_NAME).build();
 	}
+	
+	
+	//TODO add the methods in Interface
+	public String retrieveChannelID(String channelUsername) throws IOException {
+		String part = "id"; // The output fields I want to fetch (the less possible is better because fields cost on the quota authorized)
+		com.google.api.services.youtube.YouTube.Channels.List request = this.youtubeService.channels().list(part);
+		
+		ChannelListResponse response = request.setForUsername(channelUsername).execute();
+		Channel channel = response.getItems().stream().findFirst().get();
+		
+		return channel.getId();
+	}
+	
+	public String retrievePlaylistIDOfChannel(String playlistName, String channelID) throws Exception{
+		throw new NotImplementedException();
+	}
+	
+	public String retrievePlaylistIDOfMyAccount(String playlistName) throws Exception {
+		String part = "snippet";
+		com.google.api.services.youtube.YouTube.Search.List request = this.youtubeService.search().list(part);
 
+		request.setForMine(true).setType("playlist").setQ(playlistName);
+		
+		return request.execute().getItems().stream().findFirst().orElseThrow(
+				() -> new Exception("More than one playlist has been retrieved when searching for a specific playlist"))
+				.getId().getPlaylistId();
+	}
+	
+	/**
+	 * 
+	 * @param idPage
+	 * @param videoDurationFilter (optional)
+	 * @param resultLimit (optional)
+	 * @return a list of the last videos in this channel
+	 * @throws IOException 
+	 */
+	public ArrayList<VideoItem> listChannelVideos(String channelId, VideoDuration videoDurationFilter, Long resultLimit) throws IOException {
+		String part = "snippet";
+		ArrayList<VideoItem> result = new ArrayList<VideoItem>();
+		com.google.api.services.youtube.YouTube.Search.List request = this.youtubeService.search().list(part);
 
+		request.setChannelId(channelId);
+		
+		// Filtering
+		request.setOrder("date").setType("video");
+		if(resultLimit == null) {
+			System.out.println(String.format("WARN: The default result limit is used for the search video listing (default limit = %l)", DEFAULT_PLAYLIST_LIMIT_RESULT));
+			request.setMaxResults(DEFAULT_VIDEO_RESEARCH_LIMIT_RESULT);
+		}else {
+			request.setMaxResults(resultLimit);
+		}
+		if(videoDurationFilter != null)
+			request.setVideoDuration(videoDurationFilter.getTextCode());
+		
+		// Request Execution and collecting results
+		request.execute().getItems().forEach(item -> {
+			String id = item.getId().getVideoId();
+			String title = item.getSnippet().getTitle();
+			Calendar creationDate = Calendar.getInstance();
+			creationDate.setTimeInMillis(item.getSnippet().getPublishedAt().getValue());
+			result.add(new VideoItem(id, title, creationDate));
+		});
+		
+		return result;
+	}
+	
+	/**
+	 * It is not possible to get a lot of informations, or to control much the getting video request on a playlist.
+	 * So get only the last N videos of a given playlist
+	 * 
+	 * @param playlistId
+	 * @param videoDurationFilter
+	 * @return
+	 * @throws IOException 
+	 */
+	public ArrayList<VideoItem> listPlaylistVideos(String playlistId, VideoDuration videoDurationFilter, Long resultLimit) throws IOException {
+		String part = "snippet,contentDetails";
+		ArrayList<VideoItem> result = new ArrayList<VideoItem>();
+		
+		
+		com.google.api.services.youtube.YouTube.PlaylistItems.List request = this.youtubeService.playlistItems().list(part);
+		
+		if(resultLimit == null) {
+			System.out.println(String.format("WARN: The default result limit is used for the playlist video listing (default limit = %l)", DEFAULT_PLAYLIST_LIMIT_RESULT));
+			request.setMaxResults(DEFAULT_PLAYLIST_LIMIT_RESULT);
+		}else {
+			request.setMaxResults(resultLimit);
+		}
+		
+		request.execute().getItems().forEach(item -> {
+			String id = item.getContentDetails().getVideoId();
+			String title = item.getSnippet().getTitle();
+			result.add(new VideoItem(id, title));
+		});
+		
+		return result;
+	}
+	
+	public void CreatePlaylist(String playlistName) throws Exception {
+		String part = "snippet";		
+		Playlist playlist = new Playlist();
+		playlist.setSnippet(new PlaylistSnippet().setTitle(playlistName));
+		
+        YouTube.Playlists.Insert request = this.youtubeService.playlists().insert(part, playlist);
+        request.execute();
+	}
+	
+	public void DeletePlaylist(String playlistId) throws Exception {
+		Delete request = this.youtubeService.playlists().delete(playlistId);
+		request.execute();
+	}
+	
+	public void AddVideoToPlaylist(String videoId, String playlistId) throws Exception {
+		String part = "snippet";
+		PlaylistItem playlistItem = new PlaylistItem();
+		playlistItem.setSnippet(new PlaylistItemSnippet().setPlaylistId(playlistId).setResourceId(new ResourceId().setVideoId(videoId)));
+		
+        YouTube.PlaylistItems.Insert request = youtubeService.playlistItems().insert(part, playlistItem);
+        request.execute();
+	}
 	
 	
 	
@@ -56,31 +194,6 @@ public class YoutubeClient implements IYoutubeClient {
 	 * Private functions
 	 */
 
-
-
-
-	private HashMap<String, String> extractNotesValues(String notes) throws BadFormatPropertyException {
-		HashMap<String, String> result = new HashMap<String, String>();
-		String [] properties = notes.split(";");
-		for (String line : properties) {
-			String [] lineSplitted = line.split("=");
-			if(lineSplitted.length != 2)
-				throw new BadFormatPropertyException("The property line in the Task 'note' doesn't have the good format (format: key=value). ---> lineSplitted.length = " + lineSplitted.length);
-			String key = lineSplitted[0];
-			String value = lineSplitted[1];
-			result.put(key, value);
-		}
-		return result;
-	}
-
-
-
-	private String getDayDateString(Calendar calendar) {
-		String patternDate = "%d-%d-%dT00:00:00+00:00";
-
-		return String.format(patternDate, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1,
-				calendar.get(Calendar.DAY_OF_MONTH));
-	}
 	
 	
 	/**

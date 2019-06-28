@@ -9,7 +9,7 @@ package main.model.youtube.playlist;
 public enum RetrievingSequenceType {
 	
 	CHANNEL_PLAYLIST,
-	CHANNEL_LASTVIDEOS,
+	CHANNEL_LASTVIDEOS, // The most used
 	SIMPLE_RESEARCH,
 	MUSIC_TRENDS; // Nouvelles tendances musicales
 	
