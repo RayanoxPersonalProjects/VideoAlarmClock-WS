@@ -26,8 +26,6 @@ public class InfosController extends AbstractController{
 	private final Integer DEFAULT_SHUTDOWN_TIMER_VALUE = 40; // In minutes
 	
 	
-	@Autowired
-	private DataStorage dataStorage;
 	
 
     @GetMapping(value = "/getTimeAlarm")

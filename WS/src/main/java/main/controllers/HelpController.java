@@ -3,6 +3,7 @@ package main.controllers;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,16 +49,12 @@ public class HelpController extends AbstractController {
 
     	ArrayList<String> formulaInfos = new ArrayList<String>();
     	
-    	Class<?> ter = YoutubePlaylistComposer.class;
-    	Field [] fields = ter.getFields();
+    	HashMap<String, Integer> mapFormulas = YoutubePlaylistComposer.getFormulasCodesMapping();
     	
-    	for (Field field : fields) {
-			String variableName = field.getName();
-			
-			if(variableName.startsWith("FORMULA_" )) {
-				int variableValue = field.getInt(field);
-				formulaInfos.add(String.format("\"Formula with ID = %d\": \"%s\"", variableValue, variableName));
-			}
+    	for (String variableName : mapFormulas.keySet()) {
+
+			int variableValue = mapFormulas.get(variableName);
+			formulaInfos.add(String.format("\"Formula with ID = %d\": \"%s\"", variableValue, variableName));
 		}
     	
     	return "{" + String.join(",", formulaInfos) + "}";

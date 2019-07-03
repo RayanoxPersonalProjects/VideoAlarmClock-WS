@@ -67,7 +67,6 @@ public class YoutubeClient implements IYoutubeClient {
 	}
 	
 	
-	//TODO add the methods in Interface
 	public String retrieveChannelID(String channelUsername) throws IOException {
 		String part = "id"; // The output fields I want to fetch (the less possible is better because fields cost on the quota authorized)
 		com.google.api.services.youtube.YouTube.Channels.List request = this.youtubeService.channels().list(part);

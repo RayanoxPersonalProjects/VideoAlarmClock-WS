@@ -5,12 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import main.authentication.ServerTokenProvider;
 import main.model.ErrorBuilder;
+import main.providers.DataStorage;
 import main.utils.Converter;
 
 public class AbstractController {
 
 	@Autowired
 	ServerTokenProvider serverTokenProvider;
+
+	@Autowired
+	protected DataStorage dataStorage;
 	
 	protected String formatStringException(Exception e) {
     	String stringStackTrace;
