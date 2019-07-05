@@ -33,7 +33,7 @@ public enum VideoDuration {
 			if(videoDuration.getLessThanMinutes() == null)
 				continue;
 			
-			if(maxValue.compareTo(videoDuration.getLessThanMinutes()) < 0) {
+			if(maxValue.compareTo(videoDuration.getLessThanMinutes()) <= 0) {
 				if(result != null && videoDuration.getLessThanMinutes().compareTo(result.getLessThanMinutes()) >= 0)
 					continue;
 				result = videoDuration;

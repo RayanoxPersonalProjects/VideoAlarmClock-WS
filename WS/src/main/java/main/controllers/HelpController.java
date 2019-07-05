@@ -1,11 +1,8 @@
 package main.controllers;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +17,7 @@ import main.providers.youtube.YoutubePlaylistComposer;
 @RestController
 public class HelpController extends AbstractController {
 	
-	private final Class<?> [] controllerClasses = new Class<?> [] { CommandController.class, HelpController.class, InfosController.class }; 
+	private final Class<?> [] controllerClasses = new Class<?> [] { CommandController.class, HelpController.class, InfosController.class, OperationController.class }; 
 	
 	
 	@GetMapping(value = "/help", produces = {"application/json"})

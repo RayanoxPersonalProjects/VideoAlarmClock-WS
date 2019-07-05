@@ -35,8 +35,8 @@ public class OperationController extends AbstractController{
     	}
 	}
 	
-	@GetMapping(value = "/UpdatePlaylist")
-	public String UpdateCustomYoutubePlaylist(@RequestParam String token, Integer formulaCode) throws AuthenticationException {
+	@GetMapping(value = "/UpdatePlaylist", params = "formulaCode")
+	public String UpdateCustomYoutubePlaylist(@RequestParam String token, @RequestParam Integer formulaCode) throws AuthenticationException {
 		String failedAuthMessage = processAuthorization(token);
     	if(failedAuthMessage != null)
     		return failedAuthMessage;

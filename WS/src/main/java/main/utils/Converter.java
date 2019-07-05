@@ -45,4 +45,8 @@ public class Converter {
 			throw new Exception(String.format("The volum level cannot be less than 0 (value = %s)", volum));
 		return volum;
 	}
+
+	public static double convertSecondsToMinutes(long seconds) {
+		return ((double) seconds) / 60;
+	}
 }

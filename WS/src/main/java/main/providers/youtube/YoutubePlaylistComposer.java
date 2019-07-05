@@ -28,12 +28,12 @@ public class YoutubePlaylistComposer {
 		switch (codeFormula) {
 			case FORMULA_BASIC:
 				
-				int maxMinutesForEachVideo = 5;
+				int maxMinutesForEachVideo = 4;
 				int maxMinutesForGroup = 15;
 				
 				result.add(new PlaylistContentGroupInfo(PlaylistVideoType.NewMusics, maxMinutesForEachVideo, maxMinutesForGroup));
 				result.add(new PlaylistContentGroupInfo(PlaylistVideoType.News_Euronews, maxMinutesForEachVideo, maxMinutesForGroup));
-				result.add(new PlaylistContentGroupInfo(PlaylistVideoType.Entertainment_RocketLeague_Squishy, maxMinutesForEachVideo, maxMinutesForGroup));
+				result.add(new PlaylistContentGroupInfo(PlaylistVideoType.Entertainment_RocketLeague_Squishy, maxMinutesForGroup, maxMinutesForGroup));
 				
 				break;
 			default:

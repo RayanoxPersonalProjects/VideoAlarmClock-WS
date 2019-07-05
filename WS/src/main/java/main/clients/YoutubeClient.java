@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,9 @@ import com.google.api.services.youtube.model.PlaylistItem;
 import com.google.api.services.youtube.model.PlaylistItemSnippet;
 import com.google.api.services.youtube.model.PlaylistSnippet;
 import com.google.api.services.youtube.model.ResourceId;
+import com.google.api.services.youtube.model.Video;
 
+import main.clients.requestparams.VideoDetails;
 import main.clients.requestparams.VideoDuration;
 import main.exceptions.BadFormatPropertyException;
 import main.exceptions.NotImplementedException;
@@ -49,7 +52,7 @@ public class YoutubeClient implements IYoutubeClient {
 
 	private static final String APPLICATION_NAME = "RegularTasks-mediation";
 //	private static final List<String> SCOPES = Collections.singletonList(TasksScopes.TASKS);
-	private static final List<String> SCOPES = Collections.singletonList(YouTubeScopes.YOUTUBE_UPLOAD);
+	private static final Set<String> SCOPES = YouTubeScopes.all();
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 	private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
@@ -66,7 +69,7 @@ public class YoutubeClient implements IYoutubeClient {
 				.setApplicationName(APPLICATION_NAME).build();
 	}
 	
-	
+	// Not working on my single test (but was also not working on the google explorer)
 	public String retrieveChannelID(String channelUsername) throws IOException {
 		String part = "id"; // The output fields I want to fetch (the less possible is better because fields cost on the quota authorized)
 		com.google.api.services.youtube.YouTube.Channels.List request = this.youtubeService.channels().list(part);
@@ -77,19 +80,25 @@ public class YoutubeClient implements IYoutubeClient {
 		return channel.getId();
 	}
 	
-	public String retrievePlaylistIDOfChannel(String playlistName, String channelID) throws Exception{
-		throw new NotImplementedException();
+	public String retrievePlaylistIDOfChannel(String playlistName, String channelId) throws Exception{
+		String part = "id";
+		com.google.api.services.youtube.YouTube.Search.List request = this.youtubeService.search().list(part);
+
+		request.setChannelId(channelId).setType("playlist").setQ(playlistName);
+		
+		return request.execute().getItems().stream().findFirst().orElseThrow(
+				() -> new Exception("No playlist has been retrieved when searching for a specific playlist"))
+				.getId().getPlaylistId();
 	}
 	
 	public String retrievePlaylistIDOfMyAccount(String playlistName) throws Exception {
 		String part = "snippet";
-		com.google.api.services.youtube.YouTube.Search.List request = this.youtubeService.search().list(part);
+		com.google.api.services.youtube.YouTube.Playlists.List request = this.youtubeService.playlists().list(part);
 
-		request.setForMine(true).setType("playlist").setQ(playlistName);
+		request.setMine(true);
 		
-		return request.execute().getItems().stream().findFirst().orElseThrow(
-				() -> new Exception("More than one playlist has been retrieved when searching for a specific playlist"))
-				.getId().getPlaylistId();
+		Playlist myPlaylist = request.execute().getItems().stream().filter(item -> item.getSnippet().getTitle().equals(playlistName)).findFirst().orElse(null);
+		return myPlaylist == null ? null : myPlaylist.getId();
 	}
 	
 	/**
@@ -139,13 +148,15 @@ public class YoutubeClient implements IYoutubeClient {
 	 * @return
 	 * @throws IOException 
 	 */
-	public ArrayList<VideoItem> listPlaylistVideos(String playlistId, VideoDuration videoDurationFilter, Long resultLimit) throws IOException {
+	public ArrayList<VideoItem> listPlaylistVideos(String playlistId, Long resultLimit) throws IOException {
 		String part = "snippet,contentDetails";
 		ArrayList<VideoItem> result = new ArrayList<VideoItem>();
 		
 		
 		com.google.api.services.youtube.YouTube.PlaylistItems.List request = this.youtubeService.playlistItems().list(part);
 		
+		request.setPlaylistId(playlistId);
+				
 		if(resultLimit == null) {
 			System.out.println(String.format("WARN: The default result limit is used for the playlist video listing (default limit = %l)", DEFAULT_PLAYLIST_LIMIT_RESULT));
 			request.setMaxResults(DEFAULT_PLAYLIST_LIMIT_RESULT);
@@ -156,19 +167,26 @@ public class YoutubeClient implements IYoutubeClient {
 		request.execute().getItems().forEach(item -> {
 			String id = item.getContentDetails().getVideoId();
 			String title = item.getSnippet().getTitle();
-			result.add(new VideoItem(id, title));
+			Calendar creationDate = Calendar.getInstance();
+			creationDate.setTimeInMillis(item.getSnippet().getPublishedAt().getValue());
+			result.add(new VideoItem(id, title, creationDate));
 		});
 		
 		return result;
 	}
 	
-	public void CreatePlaylist(String playlistName) throws Exception {
-		String part = "snippet";		
+	/**
+	 * @return The ID of the new playlist
+	 */
+	public String CreatePlaylist(String playlistName) throws Exception {
+		String part = "id,snippet";		
 		Playlist playlist = new Playlist();
 		playlist.setSnippet(new PlaylistSnippet().setTitle(playlistName));
 		
         YouTube.Playlists.Insert request = this.youtubeService.playlists().insert(part, playlist);
-        request.execute();
+        Playlist newPlaylist = request.execute();
+        
+        return newPlaylist.getId();
 	}
 	
 	public void DeletePlaylist(String playlistId) throws Exception {
@@ -179,12 +197,27 @@ public class YoutubeClient implements IYoutubeClient {
 	public void AddVideoToPlaylist(String videoId, String playlistId) throws Exception {
 		String part = "snippet";
 		PlaylistItem playlistItem = new PlaylistItem();
-		playlistItem.setSnippet(new PlaylistItemSnippet().setPlaylistId(playlistId).setResourceId(new ResourceId().setVideoId(videoId)));
+		playlistItem.setSnippet(new PlaylistItemSnippet().setPlaylistId(playlistId).setResourceId(new ResourceId().setVideoId(videoId).setKind("youtube#video")));
 		
         YouTube.PlaylistItems.Insert request = youtubeService.playlistItems().insert(part, playlistItem);
         request.execute();
 	}
-	
+
+	@Override
+	public VideoDetails retrieveDetailsOfVideo(String videoId) throws Exception {
+		String part = "snippet,contentDetails";
+		
+		com.google.api.services.youtube.YouTube.Videos.List request = this.youtubeService.videos().list(part);
+		
+		request.setId(videoId);
+
+		request.setMaxResults(DEFAULT_PLAYLIST_LIMIT_RESULT);
+		
+		Video videoDetails = request.execute().getItems().get(0);
+		
+		
+		return new VideoDetails(videoDetails.getContentDetails().getDuration(), videoDetails.getSnippet().getPublishedAt());
+	}
 	
 	
 	
@@ -208,7 +241,7 @@ public class YoutubeClient implements IYoutubeClient {
 		if (in == null) {
 			String errorMessage = "Please add the '" + CREDENTIALS_FILE_PATH
 					+ "' file to the resource folder (src/main/resources)";
-			throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
+			throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH + ". " + errorMessage);
 		}
 		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
