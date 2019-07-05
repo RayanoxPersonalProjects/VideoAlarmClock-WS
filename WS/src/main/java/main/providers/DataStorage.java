@@ -93,6 +93,29 @@ public class DataStorage {
 		}
 	}
 	
+
+	/**
+	 * 
+	 * @param key
+	 * @param targetClass
+	 * @param defaultValue A default value set if no value has already been stored.
+	 * @return null if any data is found with the corresponding key and no defaultValue is provided, or returns the value data otherwise.
+	 * @throws NotImplementedException
+	 * @throws BadFormatPropertyException
+	 * @throws IOException
+	 */
+	public Object getData(String key, Class<?> targetClass, Object defaultValue) throws NotImplementedException, BadFormatPropertyException, IOException {
+		
+		Object data = this.getData(key, targetClass);
+		
+		if(data == null && defaultValue != null) {
+			this.setData(key, defaultValue);
+			data = this.getData(key, targetClass);
+		}
+		
+		return data;
+	}
+	
 	public void setData(String key, Object data) throws IOException, NotImplementedException, BadFormatPropertyException {
 		this.refreshCache();
 		

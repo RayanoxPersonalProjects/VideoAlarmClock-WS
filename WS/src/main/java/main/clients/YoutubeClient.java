@@ -7,9 +7,6 @@ import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -23,12 +20,9 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.DateTime;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.YouTube.Channels;
 import com.google.api.services.youtube.YouTube.Playlists.Delete;
-import com.google.api.services.youtube.YouTube.Search;
 import com.google.api.services.youtube.YouTubeScopes;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelListResponse;
@@ -41,8 +35,6 @@ import com.google.api.services.youtube.model.Video;
 
 import main.clients.requestparams.VideoDetails;
 import main.clients.requestparams.VideoDuration;
-import main.exceptions.BadFormatPropertyException;
-import main.exceptions.NotImplementedException;
 import main.model.youtube.playlist.VideoItem;
 
 @Service

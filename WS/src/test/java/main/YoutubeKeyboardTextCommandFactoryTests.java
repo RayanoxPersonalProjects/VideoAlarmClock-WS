@@ -44,10 +44,10 @@ public class YoutubeKeyboardTextCommandFactoryTests {
     public void YoutubeTextGenerationCommandTest() throws Exception {
 
     	// Arrange
-    	CommandSequenceBuilder commandBuilder = CommandSequenceBuilder.CreateCommandSequence();
+    	CommandSequenceBuilder commandBuilder = CommandSequenceBuilder.CreateCommandSequence(true);
     	IYoutubeKeyboardTextCommandFactory youtubeKeyboardFactory = commandBuilder.getYoutubeKeyboardCommandManager();
     	String textToTest = "Un petit test";
-    	String resultExpected = "{D-D-R-R-R-R-R-R-X-U-X-D-D-L-L-L-L-L-L-D-X-U-U-R-X-U-U-R-R-R-X-D-D-R-X-U-L-L-L-L-X-D-R-R-R-R-X-D-L-L-L-L-L-D-X-U-U-R-R-R-R-R-X-U-U-L-X-D-D-X-R-X}";
+    	String resultExpected = "D-D-R-R-R-R-R-R-X-U-X-D-D-L-L-L-L-L-L-D-X-U-U-R-X-U-U-R-R-R-X-D-D-R-X-U-L-L-L-L-X-D-R-R-R-R-X-D-L-L-L-L-L-D-X-U-U-R-R-R-R-R-X-U-U-L-X-D-D-X-R-X";
     	
     	// Action
     	youtubeKeyboardFactory.addCommandsFromText(commandBuilder, textToTest, 'A');
@@ -63,10 +63,10 @@ public class YoutubeKeyboardTextCommandFactoryTests {
     public void YoutubeTextGenerationCommand_SimpleTestOnBothKeyboardsTest() throws Exception {
 
     	// Arrange
-    	CommandSequenceBuilder commandBuilder = CommandSequenceBuilder.CreateCommandSequence();
+    	CommandSequenceBuilder commandBuilder = CommandSequenceBuilder.CreateCommandSequence(true);
     	IYoutubeKeyboardTextCommandFactory youtubeKeyboardFactory = commandBuilder.getYoutubeKeyboardCommandManager();
     	String textToTest = "Le 92i";
-    	String resultExpected = "{D-R-R-R-R-X-U-X-D-D-D-L-L-L-L-D-X-U-U-U-R-R-R-R-R-R-R-X-L-D-L-L-L-L-X-U-U-L-X-D-R-R-R-R-R-R-X-L-L-L-L-L-L-X}";
+    	String resultExpected = "D-R-R-R-R-X-U-X-D-D-D-L-L-L-L-D-X-U-U-U-R-R-R-R-R-R-R-X-L-D-L-L-L-L-X-U-U-L-X-D-R-R-R-R-R-R-X-L-L-L-L-L-L-X";
     	
     	// Action
     	youtubeKeyboardFactory.addCommandsFromText(commandBuilder, textToTest, 'A');

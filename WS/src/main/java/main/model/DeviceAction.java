@@ -1,17 +1,21 @@
 package main.model;
 
-public enum PsButton {
+public enum DeviceAction {
 	Up ('U'), 
 	Down ('D'), 
 	Right ('R'), 
 	Left ('L'), 
 	X ('X'), 
 	O ('O'), 
-	SleepOnce ('S');
+	PS_Home('H'),
+	
+	TV_Power('P'),
+	
+	Sleep ('S');
 	
 	private char brutCharacterForMessage;
 	
-	private PsButton(char brutCharacterForMessage) {
+	private DeviceAction(char brutCharacterForMessage) {
 		this.brutCharacterForMessage = brutCharacterForMessage;
 	}
 	

@@ -16,14 +16,14 @@ import main.utils.Converter;
 @RestController
 public class InfosController extends AbstractController{
 
-	private final String CONF_VOLUM_PROPERTY_NAME = "volumLevel";
-	private final Integer DEFAULT_VOLUM = 30;
+	public static final String CONF_VOLUM_PROPERTY_NAME = "volumLevel";
+	public static final Integer DEFAULT_VOLUM = 30;
 	
-	private final String CONF_ALARM_CLOCK_PROPERTY_NAME = "alarmClockTime";
-	private final Time DEFAULT_ALARM_TIME = new Time(7, 30, 0);
+	public static final String CONF_ALARM_CLOCK_PROPERTY_NAME = "alarmClockTime";
+	public static final Time DEFAULT_ALARM_TIME = new Time(7, 30, 0);
 	
-	private final String CONF_SHUTDOWN_TIMER_VALUE_PROPERTY_NAME = "shutdownTimerValue";
-	private final Integer DEFAULT_SHUTDOWN_TIMER_VALUE = 40; // In minutes
+	public static final String CONF_SHUTDOWN_TIMER_VALUE_PROPERTY_NAME = "shutdownTimerValue";
+	public static final Integer DEFAULT_SHUTDOWN_TIMER_VALUE = 40; // In minutes
 	
 	
 	
@@ -35,11 +35,7 @@ public class InfosController extends AbstractController{
     		return failedAuthMessage;
     	
     	try {
-    		Time alarmTime = (Time) this.dataStorage.getData(CONF_ALARM_CLOCK_PROPERTY_NAME, Time.class);
-    		if(alarmTime == null) {
-    			this.dataStorage.setData(CONF_ALARM_CLOCK_PROPERTY_NAME, DEFAULT_ALARM_TIME);
-    			alarmTime = (Time) this.dataStorage.getData(CONF_ALARM_CLOCK_PROPERTY_NAME, Time.class);
-    		}
+    		Time alarmTime = (Time) this.dataStorage.getData(CONF_ALARM_CLOCK_PROPERTY_NAME, Time.class, DEFAULT_ALARM_TIME);
     		
     		return Converter.convertTimeToString(alarmTime);
     	}catch(Exception e) {
@@ -71,11 +67,7 @@ public class InfosController extends AbstractController{
     		return failedAuthMessage;
     	
     	try {
-    		Integer volum = (Integer) this.dataStorage.getData(CONF_VOLUM_PROPERTY_NAME, Integer.class);
-    		if(volum == null) {
-    			this.dataStorage.setData(CONF_VOLUM_PROPERTY_NAME, DEFAULT_VOLUM);
-    			volum = (Integer) this.dataStorage.getData(CONF_VOLUM_PROPERTY_NAME, Integer.class);
-    		}
+    		Integer volum = (Integer) this.dataStorage.getData(CONF_VOLUM_PROPERTY_NAME, Integer.class, DEFAULT_VOLUM);
     		
     		return volum.toString();
     	}catch(Exception e) {
@@ -116,11 +108,7 @@ public class InfosController extends AbstractController{
     		return failedAuthMessage;
     	
     	try {
-    		Integer minutesTimer = (Integer) this.dataStorage.getData(CONF_SHUTDOWN_TIMER_VALUE_PROPERTY_NAME, Integer.class);
-    		if(minutesTimer == null) {
-    			this.dataStorage.setData(CONF_SHUTDOWN_TIMER_VALUE_PROPERTY_NAME, DEFAULT_SHUTDOWN_TIMER_VALUE);
-    			minutesTimer = (Integer) this.dataStorage.getData(CONF_SHUTDOWN_TIMER_VALUE_PROPERTY_NAME, Integer.class);
-    		}
+    		Integer minutesTimer = (Integer) this.dataStorage.getData(CONF_SHUTDOWN_TIMER_VALUE_PROPERTY_NAME, Integer.class, DEFAULT_SHUTDOWN_TIMER_VALUE);
     		
     		return minutesTimer.toString();
     	}catch(Exception e) {

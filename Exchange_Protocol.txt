@@ -7,6 +7,7 @@ The driving language is the protocol of datas sent by network from the driving W
 
 . '{' = Starts a sequence sending so that every characters following are considered as interpreted as driving language characters by the Arduino device.
 
+
 . 'U' = "Up" -> to push the "Up" button of the PS  remote control.
 
 . 'D' = "Down" -> to push the "Down" button of the PS  remote control.
@@ -19,7 +20,18 @@ The driving language is the protocol of datas sent by network from the driving W
 
 . 'O' = to push the "O" button of the PS remote control. This button semantic is to cancel a selection of just go back.
 
+. 'H' = "Home" -> to push the Home button of the Playstation. Also known as the 'PS' button.
+
+
+. 'P' = "Power TV" -> to push the power TV button
+
+
+. 'S' = "Sleep" -> a special command to tell the Arduino device to sleep. 'Seconds amount' must be provided as 'S,n' , with n = the amount of sleeping seconds.
+
+. 'K' = "Kill" -> tell the Arduino device to Shutdown itself.
+
 . '-' = the separator between each "button push" command.
+
 
 . '}' = Close the command sequence. After this character, the Arduino device is supposed to stop reading the next bytes of the http connection (it can be closed).
 

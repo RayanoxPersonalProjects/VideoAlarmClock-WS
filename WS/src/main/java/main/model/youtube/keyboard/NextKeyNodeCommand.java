@@ -1,13 +1,13 @@
 package main.model.youtube.keyboard;
 
-import main.model.PsButton;
+import main.model.Command;
 
 public class NextKeyNodeCommand {
 	
 	public KeyNode nextKeyNode;
-	public PsButton charDirection;
+	public Command charDirection;
 	
-	public NextKeyNodeCommand(KeyNode nextKeyNode, PsButton charDirection) {
+	public NextKeyNodeCommand(KeyNode nextKeyNode, Command charDirection) {
 		this.nextKeyNode = nextKeyNode;
 		this.charDirection = charDirection;
 	}

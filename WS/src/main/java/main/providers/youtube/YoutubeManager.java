@@ -42,12 +42,7 @@ public class YoutubeManager {
 	}
 
 	public void UpdateYoutubePlaylist() throws Exception {
-		Integer formulaCode = (Integer) dataStorage.getData(FORMULA_SELECTED_CONFIG_NAME, Integer.class);
-
-		if(formulaCode == null) {
-			dataStorage.setData(FORMULA_SELECTED_CONFIG_NAME, DEFAULT_FORMULA);
-			formulaCode = DEFAULT_FORMULA;
-		}
+		Integer formulaCode = (Integer) dataStorage.getData(FORMULA_SELECTED_CONFIG_NAME, Integer.class, DEFAULT_FORMULA);
 		
 		UpdateYoutubePlaylist(formulaCode); 
 	}

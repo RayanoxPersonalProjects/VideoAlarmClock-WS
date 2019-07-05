@@ -4,17 +4,25 @@ import java.util.ArrayList;
 
 public class CommandSequence {
 	
-	private ArrayList<PsButton> btnSequence;
+	private ArrayList<Command> btnSequence;
 	
 	public CommandSequence() {
-		this.btnSequence = new ArrayList<PsButton>();
+		this.btnSequence = new ArrayList<Command>();
 	}
 	
-	public void addBtnCommand(PsButton btn) {
+	public void addBtnCommand(Command btn) {
 		this.btnSequence.add(btn);
 	}
 	
-	public ArrayList<PsButton> getBtnSequence() {
+	public void addBtnCommand(DeviceAction action) {
+		this.addBtnCommand(action, null);
+	}
+	
+	public void addBtnCommand(DeviceAction action, Integer secondsDuring) {
+		this.btnSequence.add(Command.Create(action, secondsDuring));
+	}
+	
+	public ArrayList<Command> getBtnSequence() {
 		return btnSequence;
 	}
 	

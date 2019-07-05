@@ -1,12 +1,19 @@
 package main.providers;
 
-import java.util.Collection;
-
-import main.model.PsButton;
+import main.model.CommandSequence;
 
 public interface ICommandProvider {
+	/*
+	 *  Content commands creation
+	 */
+	CommandSequence GetContentCommand_SimpleVideo() throws Exception;
+	CommandSequence GetContentCommand_InfoChannel(InfoChannel channel) throws Exception;
+	CommandSequence GetContentCommand_CustomDailyYoutubePlaylist() throws Exception;
 	
-	String GetContentCommand_SimpleVideo() throws Exception;
-	String GetContentCommand_InfoChannel(InfoChannel channel) throws Exception;
-	String GetContentCommand_CustomDailyYoutubePlaylist() throws Exception;
+	/*
+	 *  Steps commands creation
+	 */
+	String GetCommands_ForTimerPeriod() throws Exception;
+	String GetCommands_ForWakingUp(CommandSequence contentCommands) throws Exception;
+	String GetCommands_ForClosing(int mediasTotalDurationMinutes) throws Exception;
 }
