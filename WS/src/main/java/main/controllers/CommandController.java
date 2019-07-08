@@ -2,6 +2,7 @@ package main.controllers;
 
 import java.util.Calendar;
 
+import org.apache.logging.log4j.util.Strings;
 import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +47,7 @@ public class CommandController extends AbstractController{
 					int dayOfYear = currentDate.get(Calendar.DAY_OF_YEAR);
 					InfoChannel channelSelected = dayOfYear  % 2 == 0 ? InfoChannel.France24 : InfoChannel.euronews_playlist;
 					contentCommands = commandProvider.GetContentCommand_InfoChannel(channelSelected);
-    				result += String.format("[channelSelected = %s , DAY_O_Y = %s, command length = %d] - ", channelSelected.toString(), dayOfYear, ((commands.length()+1)/2) - 2);
+    				result += String.format("[channelSelected = %s , DAY_O_Y = %s] - ", channelSelected.toString(), dayOfYear);
     				break;
     			case CUSTOM_DAILY_YOUTUBE_PLAYLIST:
     				
@@ -61,6 +62,8 @@ public class CommandController extends AbstractController{
     		commands = joinCommands(commands, this.commandProvider.GetCommands_ForTimerPeriod());
     		commands = joinCommands(commands, this.commandProvider.GetCommands_ForWakingUp(contentCommands));
     		commands = joinCommands(commands, this.commandProvider.GetCommands_ForClosing(MAX_WAKEUP_DURATION_MINUTES));
+    		
+    		System.out.println("Total command length = " + (((commands.length()+1)/2) - 2));
     		
     		return result + setEnclosingCharacters(commands);
     	}catch(Exception e) {
@@ -79,7 +82,14 @@ public class CommandController extends AbstractController{
 	}
 	
 	private String joinCommands(String firstCommand, String secondCommand) {
-		return firstCommand + CommandSequenceBuilder.delimiter + secondCommand;
+		if(firstCommand.isEmpty() && !secondCommand.isEmpty())
+			return secondCommand;
+		else if(!firstCommand.isEmpty() && secondCommand.isEmpty())
+			return firstCommand;
+		else if(!firstCommand.isEmpty() && !secondCommand.isEmpty()) 
+			return firstCommand + CommandSequenceBuilder.delimiter + secondCommand;
+		else
+			return Strings.EMPTY;
 	}
     
 }

@@ -11,7 +11,8 @@ public enum DeviceAction {
 	
 	TV_Power('P'),
 	
-	Sleep ('S');
+	Sleep ('S'),
+	Shutdown_Device('K');
 	
 	private char brutCharacterForMessage;
 	

@@ -74,9 +74,22 @@ public class CommandSequenceBuilder {
 		return this;
 	}
 	
+	/**
+	 * Here is converted the Command sequence object into a String
+	 * @return
+	 */
 	public String build() {
 		String brutSequence = "";
-		List<String> stringCommandSequence = this.commandSequence.getBtnSequence().stream().map(Command::getBrutCharacterForMessage).map(String::valueOf).collect(Collectors.toList());
+		
+		List<String> stringCommandSequence = this.commandSequence.getBtnSequence()
+				.stream()
+				.map( command -> {
+					return command.isPressMaintained() ?
+							command.getBrutCharacterForMessage() + "," + command.getActionPressTimeSeconds()
+							: String.valueOf(command.getBrutCharacterForMessage());
+				})
+				.collect(Collectors.toList());
+		
 		brutSequence += String.join(String.valueOf(delimiter), stringCommandSequence);
 		return brutSequence;		
 	}
