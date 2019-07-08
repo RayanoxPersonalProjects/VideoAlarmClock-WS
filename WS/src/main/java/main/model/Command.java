@@ -1,23 +1,41 @@
 package main.model;
 
+import main.exceptions.NotImplementedException;
+
 public class Command {
 	private DeviceAction deviceAction;
-	private Integer actionPressTimeSeconds; // The time period to maintain a button pressed.
 	
-	private Command(DeviceAction deviceAction, Integer actionPressTimeSeconds) {
+	// Parameter
+	private Object commandParameter; // The command parameter, like the time period to maintain a button pressed, or any other parameter relative to the protocol documentation.
+	
+	private Command(DeviceAction deviceAction, Object actionPressTimeSeconds) {
 		this.deviceAction = deviceAction;
-		this.actionPressTimeSeconds = actionPressTimeSeconds;
+		this.commandParameter = actionPressTimeSeconds;
 	}
+	
 	
 	public static Command Create(DeviceAction action, Integer actionPressTimeSeconds) {
 		return new Command(action, actionPressTimeSeconds);
+	}
+	public static Command Create(DeviceAction action, String stringParameter) {
+		return new Command(action, stringParameter);
 	}
 	public static Command Create(DeviceAction action) {
 		return new Command(action, null);
 	}
 	
-	public boolean isPressMaintained() {
-		return this.actionPressTimeSeconds != null && this.actionPressTimeSeconds > 0;
+	
+	
+	public boolean isParameterSet() throws NotImplementedException {
+		if(this.commandParameter == null)
+			return false;
+		
+		if(this.commandParameter instanceof Integer)
+			return ((Integer)this.commandParameter) > 0;
+		else if(this.commandParameter instanceof String)
+			return !((String)this.commandParameter).isEmpty();
+		else 
+			throw new NotImplementedException("The command parameter conversion has not been implemented for the type " + this.commandParameter.getClass().getSimpleName());
 	}
 	
 	@Override
@@ -27,11 +45,11 @@ public class Command {
 		
 		Command command = (Command) commandObject;
 		
-		if(command.getActionPressTimeSeconds() != null && this.getActionPressTimeSeconds() == null
-				|| command.getActionPressTimeSeconds() == null && this.getActionPressTimeSeconds() != null)
+		if(command.getParameter() != null && this.getParameter() == null
+				|| command.getParameter() == null && this.getParameter() != null)
 			return false;
 		
-		if(command.getActionPressTimeSeconds() != null && !command.getActionPressTimeSeconds().equals(this.actionPressTimeSeconds))
+		if(command.getParameter() != null && !command.getParameter().equals(this.commandParameter))
 			return false;
 					
 		if(!command.getDeviceAction().equals(this.deviceAction))
@@ -48,8 +66,8 @@ public class Command {
 		return this.deviceAction;
 	}
 	
-	public Integer getActionPressTimeSeconds() {
-		return this.actionPressTimeSeconds;
+	public Object getParameter() {
+		return this.commandParameter;
 	}	
 	
 	public char getBrutCharacterForMessage() {

@@ -1,7 +1,5 @@
 package main.controllers;
 
-import java.sql.Time;
-
 import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,16 +9,16 @@ import org.springframework.web.bind.annotation.RestController;
 import main.controllers.common.AbstractController;
 import main.model.ErrorBuilder;
 import main.providers.youtube.YoutubeManager;
-import main.providers.youtube.YoutubePlaylistComposer;
-import main.utils.Converter;
 
 @RestController
 public class OperationController extends AbstractController{
 	
+	public static final String UPDATE_PLAYLIST_PATH = "/UpdatePlaylist";
+	
 	@Autowired
 	private YoutubeManager youtubeManager;
 	
-	@GetMapping(value = "/UpdatePlaylist")
+	@GetMapping(value = UPDATE_PLAYLIST_PATH)
 	public String UpdateCustomYoutubePlaylist(@RequestParam String token) throws AuthenticationException {
 		String failedAuthMessage = processAuthorization(token);
     	if(failedAuthMessage != null)
@@ -35,7 +33,7 @@ public class OperationController extends AbstractController{
     	}
 	}
 	
-	@GetMapping(value = "/UpdatePlaylist", params = "formulaCode")
+	@GetMapping(value = UPDATE_PLAYLIST_PATH, params = "formulaCode")
 	public String UpdateCustomYoutubePlaylist(@RequestParam String token, @RequestParam Integer formulaCode) throws AuthenticationException {
 		String failedAuthMessage = processAuthorization(token);
     	if(failedAuthMessage != null)

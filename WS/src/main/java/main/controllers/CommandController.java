@@ -60,7 +60,7 @@ public class CommandController extends AbstractController{
     		
     		// Compute all the commands
     		commands = joinCommands(commands, this.commandProvider.GetCommands_ForTimerPeriod());
-    		commands = joinCommands(commands, this.commandProvider.GetCommands_ForWakingUp(contentCommands));
+    		commands = joinCommands(commands, this.commandProvider.GetCommands_ForWakingUp(contentCommands, contentType));
     		commands = joinCommands(commands, this.commandProvider.GetCommands_ForClosing(MAX_WAKEUP_DURATION_MINUTES));
     		
     		System.out.println("Total command length = " + (((commands.length()+1)/2) - 2));

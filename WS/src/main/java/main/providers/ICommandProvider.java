@@ -1,6 +1,7 @@
 package main.providers;
 
 import main.model.CommandSequence;
+import main.model.ContentType;
 
 public interface ICommandProvider {
 	/*
@@ -14,6 +15,6 @@ public interface ICommandProvider {
 	 *  Steps commands creation
 	 */
 	String GetCommands_ForTimerPeriod() throws Exception;
-	String GetCommands_ForWakingUp(CommandSequence contentCommands) throws Exception;
+	String GetCommands_ForWakingUp(CommandSequence contentCommands, ContentType contentType) throws Exception;
 	String GetCommands_ForClosing(int mediasTotalDurationMinutes) throws Exception;
 }

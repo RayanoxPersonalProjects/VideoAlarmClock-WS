@@ -6,12 +6,16 @@ import java.util.Calendar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import main.controllers.CommandController;
 import main.controllers.InfosController;
+import main.controllers.OperationController;
 import main.exceptions.NotImplementedException;
 import main.model.Command;
 import main.model.CommandSequence;
 import main.model.CommandSequenceBuilder;
+import main.model.ContentType;
 import main.model.DeviceAction;
+import main.utils.Helper;
 
 
 /**
@@ -47,9 +51,9 @@ public class CommandProvider implements ICommandProvider {
 		CommandSequenceBuilder commandBrowserBuilder = CommandSequenceBuilder.CreateCommandSequence(true);
 		
 		//TODO Code the access to the custom channel from Youtube on the PS4
-		throw new NotImplementedException("Youtube custom playlist feature not implemented yet (I have to code the access to the custom channel from Youtube on the PS4)");
+		//throw new NotImplementedException("Youtube custom playlist feature not implemented yet (I have to code the access to the custom channel from Youtube on the PS4)");
 		
-//		return commandBrowserBuilder.getCommandSequence();
+		return commandBrowserBuilder.getCommandSequence();
 	}
 	
 	
@@ -75,7 +79,7 @@ public class CommandProvider implements ICommandProvider {
 		return commandBrowserBuilder.build();
 	}
 	
-	public String GetCommands_ForWakingUp(CommandSequence contentCommands) throws Exception {
+	public String GetCommands_ForWakingUp(CommandSequence contentCommands, ContentType contentType) throws Exception {
 		CommandSequenceBuilder commandBrowserBuilder = CommandSequenceBuilder.CreateCommandSequence(false);
 		
 		// Sleep the time needed to wakeup at defined time
@@ -83,6 +87,9 @@ public class CommandProvider implements ICommandProvider {
 		Time timeWakeUp = (Time) this.dataStorage.getData(InfosController.CONF_ALARM_CLOCK_PROPERTY_NAME, Time.class, InfosController.DEFAULT_ALARM_TIME);
 		int nightSleepingDurationSeconds = computeTimeToSleepForNight(timeWakeUp, timerMinutesToWait);
 		commandBrowserBuilder.sleep(nightSleepingDurationSeconds);
+		
+		// Do a specific job, related to the contentType
+		processSpecificJob(commandBrowserBuilder, contentType);
 		
 		// Open the Playstation
 		commandBrowserBuilder.addCommand(DeviceAction.PS_Home);
@@ -100,14 +107,18 @@ public class CommandProvider implements ICommandProvider {
 		Integer volumeLevel = (Integer) this.dataStorage.getData(InfosController.CONF_VOLUM_PROPERTY_NAME, Integer.class, InfosController.DEFAULT_VOLUM);
 		setSoundConfiguration(commandBrowserBuilder, volumeLevel);
 		
+		// Open the TV
+		commandBrowserBuilder.addCommand(DeviceAction.TV_Power);
+		
+		// Wait few seconds (time to wait for the TV to be open)
+		commandBrowserBuilder.sleep(10);
+		
 		// Click Play
 		commandBrowserBuilder.addClickCommand();
 		
 		return commandBrowserBuilder.build();
 	}
 	
-	
-
 
 	public String GetCommands_ForClosing(int mediasTotalDurationMinutes) throws Exception {
 		CommandSequenceBuilder commandBrowserBuilder = CommandSequenceBuilder.CreateCommandSequence(false);
@@ -132,6 +143,16 @@ public class CommandProvider implements ICommandProvider {
 	 */
 	
 
+
+	private void processSpecificJob(CommandSequenceBuilder commandBrowserBuilder, ContentType contentType) {
+		switch(contentType) {
+			case CUSTOM_DAILY_YOUTUBE_PLAYLIST:
+				commandBrowserBuilder.sendHttpGetRequest(OperationController.UPDATE_PLAYLIST_PATH);
+				break;
+			default:
+				return;
+		}
+	}
 	
 	private void setSoundConfiguration(CommandSequenceBuilder commandBrowserBuilder, int volumeLevel) {
 		// Set the sound volume to 0, then increase it to reach the targeted volume level
@@ -149,8 +170,15 @@ public class CommandProvider implements ICommandProvider {
 	 */
 	private int computeTimeToSleepForNight(Time timeWakeUp, Integer timerMinutesToWait) {
 		Calendar cal = Calendar.getInstance();
+		Calendar wakeUpTime = Calendar.getInstance();
+		wakeUpTime.set(Calendar.HOUR_OF_DAY, timeWakeUp.getHours());
+		wakeUpTime.set(Calendar.MINUTE, timeWakeUp.getMinutes());
+		wakeUpTime.set(Calendar.SECOND, timeWakeUp.getSeconds());
 		
-		Long totalTimeSecondsBeforeWakeup = (timeWakeUp.getTime() - cal.getTimeInMillis()) / 1000;
+		if(wakeUpTime.before(cal))
+			wakeUpTime.add(Calendar.DAY_OF_MONTH, 1);
+		
+		Long totalTimeSecondsBeforeWakeup = (wakeUpTime.getTimeInMillis() - cal.getTimeInMillis()) / 1000;
 		int secondsTimer = timerMinutesToWait * 60;
 		
 		return totalTimeSecondsBeforeWakeup.intValue() - secondsTimer;

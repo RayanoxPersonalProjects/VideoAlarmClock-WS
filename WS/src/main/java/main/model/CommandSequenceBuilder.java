@@ -3,6 +3,7 @@ package main.model;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import main.exceptions.NotImplementedException;
 import main.model.youtube.keyboard.IYoutubeKeyboardTextCommandFactory;
 import main.model.youtube.keyboard.YoutubeKeyboardTextCommandFactory;
 
@@ -84,9 +85,16 @@ public class CommandSequenceBuilder {
 		List<String> stringCommandSequence = this.commandSequence.getBtnSequence()
 				.stream()
 				.map( command -> {
-					return command.isPressMaintained() ?
-							command.getBrutCharacterForMessage() + "," + command.getActionPressTimeSeconds()
-							: String.valueOf(command.getBrutCharacterForMessage());
+					try {
+						return command.isParameterSet() ?
+								command.getBrutCharacterForMessage() + "," + command.getParameter()
+								: String.valueOf(command.getBrutCharacterForMessage());
+					} catch (NotImplementedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					return null;
 				})
 				.collect(Collectors.toList());
 		
@@ -117,6 +125,10 @@ public class CommandSequenceBuilder {
 
 	public CommandSequenceBuilder sleep(int i) {
 		return this.addCommand(Command.Create(DeviceAction.Sleep, i));
+	}
+
+	public CommandSequenceBuilder sendHttpGetRequest(String url) {
+		return this.addCommand(Command.Create(DeviceAction.HTTP_GET, String.format("\"%s\"", url)));
 	}
 
 	

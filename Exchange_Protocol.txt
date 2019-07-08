@@ -30,6 +30,9 @@ The driving language is the protocol of datas sent by network from the driving W
 
 . 'K' = "Kill" -> tell the Arduino device to Shutdown itself.
 
+. 'G' = "HTTP GET" -> tell the Arduino to send a GET HTTP request to the url specified in parameter following the character (ex: G,"http://blabla.com?token=98"). THe url must be written between double quotes '"'.
+
+
 . '-' = the separator between each "button push" command.
 
 

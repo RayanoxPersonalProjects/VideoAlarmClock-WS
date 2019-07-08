@@ -15,12 +15,18 @@ public class CommandSequence {
 	}
 	
 	public void addBtnCommand(DeviceAction action) {
-		this.addBtnCommand(action, null);
+		this.btnSequence.add(Command.Create(action));
 	}
 	
 	public void addBtnCommand(DeviceAction action, Integer secondsDuring) {
 		this.btnSequence.add(Command.Create(action, secondsDuring));
 	}
+	
+	public void addBtnCommand(DeviceAction action, String stringParam) {
+		this.btnSequence.add(Command.Create(action, stringParam));
+	}
+	
+	
 	
 	public ArrayList<Command> getBtnSequence() {
 		return btnSequence;
