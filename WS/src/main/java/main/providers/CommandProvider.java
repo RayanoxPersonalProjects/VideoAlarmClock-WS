@@ -156,7 +156,9 @@ public class CommandProvider implements ICommandProvider {
 	
 	private void setSoundConfiguration(CommandSequenceBuilder commandBrowserBuilder, int volumeLevel) {
 		// Set the sound volume to 0, then increase it to reach the targeted volume level
-		//TODO To code at home
+		//TODO To code at home (check the second count)
+		commandBrowserBuilder.addCommand(Command.Create(DeviceAction.Volum_Down, 10));
+		commandBrowserBuilder.addCommand(Command.Create(DeviceAction.Volum_Up), 25);
 		
 		// Set the 'enable sound out of headset' box to checked.
 		//TODO To code at home

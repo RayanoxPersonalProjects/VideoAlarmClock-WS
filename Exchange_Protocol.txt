@@ -25,6 +25,11 @@ The driving language is the protocol of datas sent by network from the driving W
 
 . 'P' = "Power TV" -> to push the power TV button
 
+. 'u' = "up (volum)" -> Increase the volum, optionnally followed by a seconds parameter ('u,n', with n = the seconds to keep the button pressed)
+
+. 'd' = "down (volum)" -> Decrease the volum, optionnally followed by a seconds parameter ('u,n', with n = the seconds to keep the button pressed)
+
+
 
 . 'S' = "Sleep" -> a special command to tell the Arduino device to sleep. 'Seconds amount' must be provided as 'S,n' , with n = the amount of sleeping seconds.
 

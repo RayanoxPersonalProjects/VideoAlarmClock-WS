@@ -10,6 +10,8 @@ public enum DeviceAction {
 	PS_Home('H'),
 	
 	TV_Power('P'),
+	Volum_Up('u'),
+	Volum_Down('d'),
 	
 	Sleep ('S'),
 	Shutdown_Device('K'), 
