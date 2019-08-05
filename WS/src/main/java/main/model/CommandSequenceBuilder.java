@@ -123,7 +123,7 @@ public class CommandSequenceBuilder {
 		.addCommand(DeviceAction.Down).addCommand(DeviceAction.Down).addCommand(DeviceAction.Down).addCommand(DeviceAction.O).addCommand(DeviceAction.Sleep).addCommand(DeviceAction.O);
 	}
 
-	public CommandSequenceBuilder sleep(int i) {
+	public CommandSequenceBuilder sleep(long i) {
 		return this.addCommand(Command.Create(DeviceAction.Sleep, i));
 	}
 

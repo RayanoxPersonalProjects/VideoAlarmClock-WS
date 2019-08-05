@@ -1,6 +1,7 @@
 package main.providers.youtube;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,6 +10,7 @@ import main.clients.IYoutubeClient;
 import main.clients.requestparams.VideoDetails;
 import main.clients.requestparams.VideoDuration;
 import main.exceptions.NotImplementedException;
+import main.model.dto.CommandDto;
 import main.model.youtube.playlist.PlaylistContentGroupInfo;
 import main.model.youtube.playlist.PlaylistVideoType;
 import main.model.youtube.playlist.RetrievingSequenceType;
@@ -36,18 +38,26 @@ public class YoutubeManager {
 	private final int RETRIEVE_VIDEO_COUNT_LIMIT = 30;
 //	private final int RETRIEVE_VIDEO_COUNT_LIMIT = 7; // For tests purposes, I can use this line instead of the other one.
 	
+	private Calendar lastExecutionTime;
+	
 	
 	public YoutubeManager() {
 		
 	}
 
-	public void UpdateYoutubePlaylist() throws Exception {
+	public void UpdateYoutubePlaylist(CommandDto commandDto) throws Exception {
 		Integer formulaCode = (Integer) dataStorage.getData(FORMULA_SELECTED_CONFIG_NAME, Integer.class, DEFAULT_FORMULA);
 		
-		UpdateYoutubePlaylist(formulaCode); 
+		UpdateYoutubePlaylist(formulaCode, commandDto); 
 	}
 	
-	public void UpdateYoutubePlaylist(Integer formulaCode) throws Exception {
+	public void UpdateYoutubePlaylist(Integer formulaCode, CommandDto commandDto) throws Exception {
+		Long totalSecondPlaylistDuration = 0l;
+		
+		if(isLastExecutionToday()) {
+			return;
+		}
+		
 		if(!YoutubePlaylistComposer.getFormulasCodesMapping().values().contains(formulaCode))
 			throw new Exception("No formula has a code that equals " + formulaCode);
 		
@@ -69,10 +79,18 @@ public class YoutubeManager {
 		// Add videos to playlist
 		for (VideoItem video : videosToAdd) {
 			this.youtubeClient.AddVideoToPlaylist(video.getId(), myCustomPlaylistId);
+			totalSecondPlaylistDuration += video.getDuration().getSeconds();
 		}
+		
+		// Add playlist duration information to DTO
+		if(commandDto != null)
+			commandDto.youtubePlaylistDuration = totalSecondPlaylistDuration;
+		
+		// Set last execution date
+		this.lastExecutionTime = Calendar.getInstance();
 	}
 	
-	
+
 	/*
 	 *  Private functions
 	 */
@@ -94,8 +112,6 @@ public class YoutubeManager {
 				if(channelId == null)
 					channelId = this.youtubeClient.retrieveChannelID(videoTypeInfo.getChannelName());
 				result = this.youtubeClient.listChannelVideos(channelId, videoDuration, Long.valueOf(RETRIEVE_VIDEO_COUNT_LIMIT));
-				fillMissingInformations(result);
-				result = selectFilterVideos(result, videoSeqInfos);
 				break;
 			case MUSIC_TRENDS: // Not possible to access the real music trends through the API, so we use a playlist management
 			case CHANNEL_PLAYLIST:
@@ -103,8 +119,6 @@ public class YoutubeManager {
 					channelId = this.youtubeClient.retrieveChannelID(videoTypeInfo.getChannelName());
 				String playlistId = this.youtubeClient.retrievePlaylistIDOfChannel(videoTypeInfo.getPlaylistName(), channelId);
 				result = this.youtubeClient.listPlaylistVideos(playlistId, Long.valueOf(RETRIEVE_VIDEO_COUNT_LIMIT));
-				fillMissingInformations(result);
-				result = selectFilterVideos(result, videoSeqInfos);
 				break;
 			case SIMPLE_RESEARCH:
 			default:
@@ -115,6 +129,10 @@ public class YoutubeManager {
 			result = new ArrayList<VideoItem>();
 			System.err.println("An empty video array is generated (no video retrieved from the youtube research ?)");
 		}
+		
+		// Post-process
+		fillMissingInformations(result);
+		result = selectFilterVideos(result, videoSeqInfos);
 		
 		return result;
 	}
@@ -154,6 +172,11 @@ public class YoutubeManager {
 		}
 		
 		return result;
+	}
+	
+	private boolean isLastExecutionToday() {
+		Calendar today = Calendar.getInstance();
+		return lastExecutionTime != null && lastExecutionTime.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR);
 	}
 	
 }

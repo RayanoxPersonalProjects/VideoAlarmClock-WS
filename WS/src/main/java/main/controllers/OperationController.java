@@ -25,7 +25,7 @@ public class OperationController extends AbstractController{
     		return failedAuthMessage;
 		
     	try {
-			this.youtubeManager.UpdateYoutubePlaylist();
+			this.youtubeManager.UpdateYoutubePlaylist(null);
 			return "Success";
 			
     	}catch(Exception e) {
@@ -41,7 +41,7 @@ public class OperationController extends AbstractController{
     	
     	try {
     		
-    		this.youtubeManager.UpdateYoutubePlaylist(formulaCode);
+    		this.youtubeManager.UpdateYoutubePlaylist(formulaCode, null);
     		
     		return "Success";
     	}catch(Exception e) {

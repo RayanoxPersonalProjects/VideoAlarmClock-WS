@@ -3,10 +3,7 @@ package main.model.youtube.keyboard;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.springframework.stereotype.Component;
-
 import main.model.CommandSequenceBuilder;
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
 
 public class YoutubeKeyboardTextCommandFactory implements IYoutubeKeyboardTextCommandFactory {
 

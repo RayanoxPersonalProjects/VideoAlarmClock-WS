@@ -17,6 +17,9 @@ public class Command {
 	public static Command Create(DeviceAction action, Integer actionPressTimeSeconds) {
 		return new Command(action, actionPressTimeSeconds);
 	}
+	public static Command Create(DeviceAction action, Long actionPressTimeSeconds) {
+		return new Command(action, actionPressTimeSeconds);
+	}
 	public static Command Create(DeviceAction action, String stringParameter) {
 		return new Command(action, stringParameter);
 	}
@@ -32,6 +35,8 @@ public class Command {
 		
 		if(this.commandParameter instanceof Integer)
 			return ((Integer)this.commandParameter) > 0;
+		else if(this.commandParameter instanceof Long)
+			return ((Long)this.commandParameter) > 0;
 		else if(this.commandParameter instanceof String)
 			return !((String)this.commandParameter).isEmpty();
 		else 

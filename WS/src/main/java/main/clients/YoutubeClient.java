@@ -121,11 +121,13 @@ public class YoutubeClient implements IYoutubeClient {
 		
 		// Request Execution and collecting results
 		request.execute().getItems().forEach(item -> {
-			String id = item.getId().getVideoId();
-			String title = item.getSnippet().getTitle();
-			Calendar creationDate = Calendar.getInstance();
-			creationDate.setTimeInMillis(item.getSnippet().getPublishedAt().getValue());
-			result.add(new VideoItem(id, title, creationDate));
+			if(item.getSnippet().getLiveBroadcastContent().equals("none")) {
+				String id = item.getId().getVideoId();
+				String title = item.getSnippet().getTitle();
+				Calendar creationDate = Calendar.getInstance();
+				creationDate.setTimeInMillis(item.getSnippet().getPublishedAt().getValue());
+				result.add(new VideoItem(id, title, creationDate));
+			}
 		});
 		
 		return result;

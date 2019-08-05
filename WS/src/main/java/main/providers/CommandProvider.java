@@ -15,6 +15,8 @@ import main.model.CommandSequence;
 import main.model.CommandSequenceBuilder;
 import main.model.ContentType;
 import main.model.DeviceAction;
+import main.model.dto.CommandDto;
+import main.providers.youtube.YoutubeManager;
 import main.utils.Helper;
 
 
@@ -29,6 +31,8 @@ public class CommandProvider implements ICommandProvider {
 	@Autowired
 	DataStorage dataStorage;
 
+	@Autowired
+	private YoutubeManager youtubeManager;
 	
 	/*
 	 *  Commands by formula
@@ -47,11 +51,17 @@ public class CommandProvider implements ICommandProvider {
 	}
 
 	@Override
-	public CommandSequence GetContentCommand_CustomDailyYoutubePlaylist() throws NotImplementedException {
+	public CommandSequence GetContentCommand_CustomDailyYoutubePlaylist(CommandDto dto) throws Exception {
+		
+		// Update the playlist
+		this.youtubeManager.UpdateYoutubePlaylist(dto);
+		
 		CommandSequenceBuilder commandBrowserBuilder = CommandSequenceBuilder.CreateCommandSequence(true);
 		
 		//TODO Code the access to the custom channel from Youtube on the PS4
 		//throw new NotImplementedException("Youtube custom playlist feature not implemented yet (I have to code the access to the custom channel from Youtube on the PS4)");
+		
+		
 		
 		return commandBrowserBuilder.getCommandSequence();
 	}
@@ -120,7 +130,7 @@ public class CommandProvider implements ICommandProvider {
 	}
 	
 
-	public String GetCommands_ForClosing(int mediasTotalDurationMinutes) throws Exception {
+	public String GetCommands_ForClosing(long mediasTotalDurationMinutes) throws Exception {
 		CommandSequenceBuilder commandBrowserBuilder = CommandSequenceBuilder.CreateCommandSequence(false);
 		
 		// Sleep during the time all the videos will take

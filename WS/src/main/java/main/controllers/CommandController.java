@@ -15,6 +15,7 @@ import main.model.CommandSequence;
 import main.model.CommandSequenceBuilder;
 import main.model.ContentType;
 import main.model.ErrorBuilder;
+import main.model.dto.CommandDto;
 import main.providers.ICommandProvider;
 import main.providers.InfoChannel;
 
@@ -40,6 +41,7 @@ public class CommandController extends AbstractController{
     	try {
     		String commands = ""; 
     		CommandSequence contentCommands;
+    		CommandDto commandDto = new CommandDto();
     		
     		// Compute the content commands
     		switch(contentType) {
@@ -50,8 +52,7 @@ public class CommandController extends AbstractController{
     				result += String.format("[channelSelected = %s , DAY_O_Y = %s] - ", channelSelected.toString(), dayOfYear);
     				break;
     			case CUSTOM_DAILY_YOUTUBE_PLAYLIST:
-    				
-    				contentCommands = commandProvider.GetContentCommand_CustomDailyYoutubePlaylist();
+    				contentCommands = commandProvider.GetContentCommand_CustomDailyYoutubePlaylist(commandDto);
     				break;
     			default:
     				result += ErrorBuilder.buildError("The content type requested by the parameter contentTypeCode in the 'GetCommand' WS method does not exist in the system. Please request an other operation type");
@@ -61,7 +62,7 @@ public class CommandController extends AbstractController{
     		// Compute all the commands
     		commands = joinCommands(commands, this.commandProvider.GetCommands_ForTimerPeriod());
     		commands = joinCommands(commands, this.commandProvider.GetCommands_ForWakingUp(contentCommands, contentType));
-    		commands = joinCommands(commands, this.commandProvider.GetCommands_ForClosing(MAX_WAKEUP_DURATION_MINUTES));
+    		commands = joinCommands(commands, this.commandProvider.GetCommands_ForClosing(commandDto.youtubePlaylistDuration));
     		
     		System.out.println("Total command length = " + (((commands.length()+1)/2) - 2));
     		

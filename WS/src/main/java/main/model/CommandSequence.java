@@ -18,7 +18,7 @@ public class CommandSequence {
 		this.btnSequence.add(Command.Create(action));
 	}
 	
-	public void addBtnCommand(DeviceAction action, Integer secondsDuring) {
+	public void addBtnCommand(DeviceAction action, Long secondsDuring) {
 		this.btnSequence.add(Command.Create(action, secondsDuring));
 	}
 	
