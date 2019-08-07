@@ -7,16 +7,16 @@ _**If you want to use an alternative system than the Playstation 4 and you are m
 
 There are 10 methods endpoints that are used to provide informations to the Arduino device or to update an info.
 
-. getCommands : returns a sequence of commands that the Arduino will act.
-. help : return all the endpoints list
-. helpFormulasListInfos : return the codes of each wakeup formula 
-. getShutdownTimer : returns the amount of seconds before the Arduino shutdown all the devices before sleeping
-. setShutdownTimer : set the amount of seconds before the Arduino shutdown all the devices before sleeping
-. getTimeAlarm : returns the time the alarm will run.
-. setTimeAlarm : set the time the alarm will run.
-. getVolum : returns the sound level to set to the TV at wakeup time.
-. setVolum : sets the sound level to set to the TV at wakeup time.
-. UpdatePlaylist : Update the custom Youtube playlist a according to the formula that is set in configuration file.
+- getCommands : returns a sequence of commands that the Arduino will act.
+- help : return all the endpoints list
+- helpFormulasListInfos : return the codes of each wakeup formula 
+- getShutdownTimer : returns the amount of seconds before the Arduino shutdown all the devices before sleeping
+- setShutdownTimer : set the amount of seconds before the Arduino shutdown all the devices before sleeping
+- getTimeAlarm : returns the time the alarm will run.
+- setTimeAlarm : set the time the alarm will run.
+- getVolum : returns the sound level to set to the TV at wakeup time.
+- setVolum : sets the sound level to set to the TV at wakeup time.
+- UpdatePlaylist : Update the custom Youtube playlist a according to the formula that is set in configuration file.
 
 
 # Arduino part #
